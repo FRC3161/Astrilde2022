@@ -8,7 +8,11 @@ import ca.team3161.lib.robot.subsystem.RepeatingPooledSubsystem;
 import frc.robot.subsystems.BallPath.Intake.Intake;
 import frc.robot.subsystems.BallPath.Elevator.Elevator;
 import frc.robot.subsystems.BallPath.Shooter.Shooter;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
 
@@ -17,6 +21,7 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     private final Ultrasonic elevatorSensor;
     private final Shooter shooter;
     private String action;
+    private double horizontalDistanceToTarget;
 
     private long intakeStartedTime = -1;
 
@@ -27,13 +32,14 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
         this.elevatorSensor = elevatorSensor;
         this.shooter = shooter;
         this.action = "IDLE";
+        this.horizontalDistanceToTarget = 0;
     }
 
     @Override
     public void defineResources(){}
 
     @Override
-    public void task(){
+    public void task() {
         if (this.action.equals("START_INTAKE")){
             if (this.intake.checkColour() && !this.checkIfPrimed()){ 
                 long now = System.nanoTime(); // current unix timestamp in nanoseconds 
@@ -49,6 +55,43 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
                     this.action = "IDLE"; 
                 } 
             }
+        }
+
+        // Limelight data collection.
+        // Obtain values from the limelight.
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+        NetworkTableEntry tx = table.getEntry("tx");
+        NetworkTableEntry ty = table.getEntry("ty");
+        NetworkTableEntry ta = table.getEntry("ta");
+        NetworkTableEntry tv = table.getEntry("tv");
+
+        // Read values periodically
+        double x = tx.getDouble(0.0);
+        double y = ty.getDouble(0.0);
+        double area = ta.getDouble(0.0);
+        double v = tv.getDouble(0.0);
+
+        // Post to smart dashboard periodically
+        SmartDashboard.putNumber("LimelightX", x);
+        SmartDashboard.putNumber("LimelightY", y);
+        SmartDashboard.putNumber("LimelightArea", area);
+        SmartDashboard.putNumber("LimelightTargetInSight", v);
+
+        // Constantly calculate the (distance?) and centre the shooter (given that the angle is less than 60 degrees).
+        if (Math.abs(x) <= 60) {
+            // Centre the shooter with the target, calculate the horizontal distance to the said target, and set the hood angle (in preparation for shooting) according to the horizontal distance.
+            this.findAndCenterTarget(x);
+            this.horizontalDistanceToTarget = shooter.getDistance(y);
+            this.shooter.setHoodAngle(horizontalDistanceToTarget);
+
+            // If the shooter is ready to shoot.
+            if (this.readyToShoot()) {
+                this.startShooter(horizontalDistanceToTarget);  // The distance to the target was added; prior to such the method was simply called without a required argument.
+            } else {
+                this.stopShooter();
+            }
+        } else {
+            this.stopShooter();
         }
     }
 
@@ -97,8 +140,8 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     }
 
     @Override
-    public void findAndCenterTarget(){
-        this.shooter.findAndCenterTarget();
+    public void findAndCenterTarget(double tx) {
+        this.shooter.centerTarget(tx);
     }
 
     @Override
@@ -107,8 +150,8 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     }
 
     @Override
-    public void startShooter(){
-        this.shooter.start();
+    public void startShooter(double distance) {
+        this.shooter.start(distance);
     }
 
     @Override

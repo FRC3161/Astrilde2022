@@ -28,6 +28,10 @@ import frc.robot.subsystems.Climber.ClimberImpl;
 
 // Intake Imports
 import com.revrobotics.ColorSensorV3;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Ultrasonic;
 /**
@@ -87,7 +91,10 @@ public class Robot extends TitanBot {
     Elevator elevator = new ElevatorImpl(elevatorMotorController);
 
     // SHOOTER COMPONENTS
-    Shooter shooter = new ShooterImpl();
+    WPI_TalonFX shooterMotorController = new WPI_TalonFX(RobotMap.SHOOTER_TALON_PORT);
+    VictorSPX hoodMotorController = new VictorSPX(RobotMap.HOOD_MOTOR_PORT);
+    Shooter shooter = new ShooterImpl(shooterMotorController, hoodMotorController);
+    // shooter.setNeutralMode(NeutralMode.Coast);
 
     // ELEVATOR SENSOR
     Ultrasonic elevatorSensor = new Ultrasonic(RobotMap.ELEVATOR_ULTRASONIC_PORTS[0], RobotMap.ELEVATOR_ULTRASONIC_PORTS[1]);
@@ -151,20 +158,17 @@ public class Robot extends TitanBot {
     this.driverPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS, new SquaredJoystickMode());
     this.driverPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.X_AXIS, new SquaredJoystickMode());
 
-    
     this.driverPad.bind(ControllerBindings.INTAKE_START, PressType.PRESS, () -> this.ballSubsystem.startIntake());
     this.driverPad.bind(ControllerBindings.INTAKE_STOP, PressType.PRESS, () -> this.ballSubsystem.stopIntake());
     this.driverPad.bind(ControllerBindings.INTAKE_REVERSE, PressType.PRESS, () -> this.ballSubsystem.reverseIntake());
 
     this.driverPad.bind(ControllerBindings.SPIN_UP, PressType.PRESS, () -> this.ballSubsystem.readyToShoot());
-    this.driverPad.bind(ControllerBindings.SHOOT, PressType.PRESS, () -> this.ballSubsystem.startShooter());
+    this.driverPad.bind(ControllerBindings.SHOOT, PressType.PRESS, () -> this.ballSubsystem.startShooter(0.0));
     this.driverPad.bind(ControllerBindings.SHOOT, PressType.RELEASE, () -> this.ballSubsystem.stopShooter());
-
 
     this.driverPad.bind(ControllerBindings.CLIMBER_EXTEND, PressType.PRESS, () -> this.climberSubsystem.extendOuterClimber());
     this.driverPad.bind(ControllerBindings.CLIMBER_RETRACT, PressType.PRESS, () -> this.climberSubsystem.retractOuterClimber());
     this.driverPad.bind(ControllerBindings.CLIMBER_ROTATE, PressType.PRESS, () -> this.climberSubsystem.angleOuter(0.0));
-
   }
 
   

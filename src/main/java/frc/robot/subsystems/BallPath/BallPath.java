@@ -13,8 +13,8 @@ public interface BallPath extends Subsystem, LifecycleListener {
     void startElevator();
     void reverseElevator();
     void stopElevator();
-    void findAndCenterTarget();
+    void findAndCenterTarget(double tx);
     boolean readyToShoot();
-    void startShooter();
+    void startShooter(double distance);
     void stopShooter();
 }
