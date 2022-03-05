@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class IntakeImpl extends RepeatingPooledSubsystem implements Intake {
 
-    private static final double MOTOR_SPEED = 0.4;
+    private static final double MOTOR_SPEED = 0.45;
     private static final double PRIMED_DIST_THRESHOLD = 15;
     private static final int SAMPLE_COUNT = 1;
 

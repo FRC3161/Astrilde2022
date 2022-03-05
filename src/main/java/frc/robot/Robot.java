@@ -123,6 +123,7 @@ public class Robot extends TitanBot {
     //ColorSensorV3 leftColorSensor = new ColorSensorV3(RobotMap.LEFT_COLOR_SENSOR_PORT);
     //ColorSensorV3 rightColorSensor = new ColorSensorV3(RobotMap.RIGHT_COLOR_SENSOR_PORT);
     Ultrasonic intakeSensor = new Ultrasonic(RobotMap.INTAKE_ULTRASONIC_PORTS[0], RobotMap.INTAKE_ULTRASONIC_PORTS[1]);
+    // intakeSensor.setEnabled(true);
     this.intake = new IntakeImpl(intakeMotorController, intakeSensor);
 
     // SHOOTER COMPONENTS
@@ -136,7 +137,10 @@ public class Robot extends TitanBot {
     // ELEVATOR COMPONENTS
     WPI_TalonSRX elevatorMotorController = new WPI_TalonSRX(RobotMap.ELEVATOR_TALON_PORT);
     Ultrasonic elevatorSensor = new Ultrasonic(RobotMap.ELEVATOR_ULTRASONIC_PORTS[0], RobotMap.ELEVATOR_ULTRASONIC_PORTS[1]);
+    // elevatorSensor.setEnabled(true);
     this.elevator = new ElevatorImpl(elevatorMotorController, elevatorSensor, shooter);
+
+    // Ultrasonic.setAutomaticMode(true);
 
     this.ballSubsystem = new BallPathImpl(intake, elevator, shooter);
 
@@ -201,7 +205,7 @@ public class Robot extends TitanBot {
     drive.resetEncoderTicks();
     switch (m_autoSelected) {
       case kCustomAuto:
-        double autoDistance = 24;
+        double autoDistance = 27;
         auto.setDriveDistance(autoDistance);
         auto.prepareToShoot();
         Timer.delay(1);
@@ -247,6 +251,7 @@ public class Robot extends TitanBot {
     this.operatorPad.bind(ControllerBindings.INTAKE_START, PressType.RELEASE, () -> this.intake.setAction(IntakeAction.NONE));
     this.operatorPad.bind(ControllerBindings.INTAKE_REVERSE, PressType.PRESS, () -> this.intake.setAction(IntakeAction.OUT));
     this.operatorPad.bind(ControllerBindings.INTAKE_REVERSE, PressType.RELEASE, () -> this.intake.setAction(IntakeAction.NONE));
+    this.operatorPad.bind(ControllerBindings.OVERRIDE_ELEVATOR_GATE, this.elevator::setGateOverride);
 
     this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.PRESS, () -> this.shooter.setShotPosition(ShotPosition.FENDER));
     this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.RELEASE, () -> this.shooter.setShotPosition(ShotPosition.NONE));

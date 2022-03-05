@@ -23,6 +23,7 @@ public class ElevatorImpl extends RepeatingPooledSubsystem implements Elevator {
     private final Shooter shooter;
 
     private volatile ElevatorAction action = ElevatorAction.NONE;
+    private volatile boolean override = false;
     private boolean lastPresent = false;
     private final Queue<Double> sensorSamples;
 
@@ -44,6 +45,11 @@ public class ElevatorImpl extends RepeatingPooledSubsystem implements Elevator {
     @Override
     public void setAction(ElevatorAction inputAction) {
         this.action = inputAction;
+    }
+
+    @Override
+    public void setGateOverride(boolean override) {
+        this.override = override;
     }
 
     @Override
@@ -99,7 +105,7 @@ public class ElevatorImpl extends RepeatingPooledSubsystem implements Elevator {
                 }
                 break;
             case IN:
-                if (!shooter.blocking()) {
+                if (override || !shooter.blocking()) {
                     this.elevator.set(MOTOR_SPEED);
                 }
                 break;
