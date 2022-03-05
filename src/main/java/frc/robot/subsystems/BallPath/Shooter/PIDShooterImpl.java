@@ -19,9 +19,9 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
     private final TalonFX shooterMotor;
     private final TalonSRX hoodMotor;
 
-    private double kp = 0.00175;
-    private double ki = 0.00003;
-    private double kd = 0.00002;
+    private double kp = 0.00075;
+    private double ki = 0.00005;
+    private double kd = 0.000044;
 
     private volatile ShotPosition requestedPosition = ShotPosition.NONE;
     private double setPointHood;
@@ -40,7 +40,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
 
     private double currentOutput;
 
-    private final double hoodBuffer = 12500;
+    private final double hoodBuffer = 10000;
     private final double turretBuffer = 30000;
     private final double turretSpeed = 0.3;
     private final double hoodSpeed = 0.5;
@@ -48,12 +48,12 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
     private final PIDController shooterPid;
 
     public PIDShooterImpl(TalonSRX turretMotor, TalonFX shooterMotor, TalonSRX hoodMotor) {
-        super(10, TimeUnit.MILLISECONDS);
+        super(20, TimeUnit.MILLISECONDS);
         this.turretMotor = turretMotor;
         this.shooterMotor = shooterMotor;
         this.hoodMotor = hoodMotor;
         this.shooterPid = new PIDController(kp, ki, kd);
-        this.shooterPid.setTolerance(50);
+        this.shooterPid.setTolerance(200, 100);
     }
 
     @Override
@@ -86,16 +86,13 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
 
         switch (this.requestedPosition) {
             case TARMAC:
-                setPointHood = 230_000; // to be decided
-                setPointShooterPID = 6_500; // tbd
-                // setPointShooterPID = 0.45;
-                setPointRotation = 0; // will probably still be 0 for the auto shot
+                setPointHood = 230_000;
+                setPointShooterPID = 6_700;
+                setPointRotation = 0;
                 break;
             case FENDER:
                 setPointHood = 99_000;
-                // setPointHood = 100_000;
-                setPointShooterPID = 5_300; // tbd
-                // setPointShooterPID = 0.35;
+                setPointShooterPID = 5_400;
                 setPointRotation = 0;
                 break;
             case LAUNCHPAD_CLOSE:
@@ -155,7 +152,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
 
         if(setPointShooterPID != 0){
             currentOutput = shooterPid.calculate(shooterEncoderReadingVelocity, setPointShooterPID);
-            currentOutput += 0.035; // hack "feed forward"
+            currentOutput += 0.02; // hack "feed forward"
             currentOutput = Utils.normalizePwm(currentOutput);
             SmartDashboard.putNumber("Setpoint for the shooter is: ", setPointShooterPID);
             SmartDashboard.putNumber("Current Output is: ", shooterEncoderReadingVelocity);
