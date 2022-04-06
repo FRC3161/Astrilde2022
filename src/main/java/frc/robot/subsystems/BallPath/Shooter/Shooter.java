@@ -26,6 +26,8 @@ public interface Shooter extends Subsystem, LifecycleListener {
         TEST,
         TEST2,
         GENERAL, 
+        STARTAIM,
+        STOPAIM,
         RESET
         ;
     }

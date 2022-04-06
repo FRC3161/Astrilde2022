@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 
@@ -35,14 +36,15 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     private final TalonFX shooterMotor;
     // private final TalonSRX hoodMotor;
     private final CANSparkMax hoodMotor;
+    private final CANSparkMax hoodShooterMotor;
 
 
     private double kp = PIDShooterImpl.kp; // 0.00175
     private double ki = PIDShooterImpl.ki; // 0.00002
     private double kd = PIDShooterImpl.kd; // 0.00002
 
-    private double leftLimit = -120.0;
-    private double rightLimit = 120.0;
+    private double leftLimit = -90.0;
+    private double rightLimit = 90.0;
     private double degreesToTicks = 5555; //  find actual values
 
     private volatile ShotPosition requestedPosition = ShotPosition.NONE;
@@ -56,9 +58,9 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     private double turretRotation;
     private double turretHoodVelocity;
     private double turretEncoderReadingVelocity;
-    private Spark blinkinController;
     private RelativeEncoder hoodEncoder;
     private RelativeEncoder turretEncoder;
+    private RelativeEncoder hoodShooterMotorEncoder;
 
     private boolean turretReady = false;
     private boolean hoodReady = false;
@@ -75,6 +77,8 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     private final double leftLimitLimelight = -0.3;
     private final double rightLimitLimelight = 0.3;
 
+    private boolean shootFender = false;
+
     private final PIDController shooterPid;
     boolean centerUsingLimelight = false;
     boolean aim = true;
@@ -85,7 +89,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     private SparkMaxPIDController turret_PIDController;
     public double turret_kP = 0.14; 
     public double turret_kI = 0.000002;
-    public double turret_kD = 0.05;
+    public double turret_kD = 0.07;
     public double turret_kIz = 0;
     public double turret_kFF = 0;
     public double turret_kMaxOutput = 0.6;
@@ -111,7 +115,12 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     NetworkTableEntry ta = table.getEntry("ta");
     NetworkTableEntry tv = table.getEntry("tv");
     NetworkTableEntry targetSkew = table.getEntry("ts");
-    double x, y, a, canSeeTarget, totalAngle, rs, totalDistance, totalAngleRadians;
+    double x, y, a;
+    static double canSeeTarget;
+    double totalAngle;
+    double rs;
+    double totalDistance;
+    double totalAngleRadians;
 
     double a1 = 35; // angle of limelight
     double a2 = y;
@@ -123,10 +132,15 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     double heightDif = h2 - h1;
     int seen = 0;
     long logItter = 0;
+    private double hoodShooterMotorSpeed = 0;
  
+    
 
-    public PIDShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor) {
+    public PIDShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor, CANSparkMax hoodShooterMotor) {
         super(10, TimeUnit.MILLISECONDS);
+
+        this.hoodShooterMotor = hoodShooterMotor;
+        this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
         // Turret Rotation
         this.turretMotor = turretMotor;
         this.turretEncoder = turretMotor.getEncoder();
@@ -155,7 +169,6 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         hood_PIDController.setOutputRange(hood_kMinOutput, hood_kMaxOutput);
 
         // LEDs
-        this.blinkinController = new Spark(7);
        
     }
 
@@ -195,6 +208,28 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         return returnAmount;
     }
 
+    
+    public double getSetpointHoodShooter(Double distance){
+        double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd, a;
+        double returnAmount = 0;
+        double[] distances = {44.0,    77,  113.4, 145.5, 170.8, 220.5};
+        double[] wheelValues = {0.4, .5,  .6, .7, .8, .9};
+    
+        for (int i = 1; i < distances.length; i++) {
+            double key = distances[i];
+            if(distance < key){
+                distDif = distances[i] - distances[i-1];
+                wheelDif = wheelValues[i] - wheelValues[i-1];
+                difFromUpper = distances[i] - distance;
+                percentToAdd = difFromUpper / distDif;
+                amountToAdd = percentToAdd * wheelDif;
+                returnAmount = wheelValues[i] - amountToAdd;
+                break;
+            }
+        }
+        return returnAmount;
+    }
+
     public double getSetpointWheel(Double distance){
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd, a;
         double returnAmount = 0;
@@ -216,6 +251,10 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         return returnAmount;
     }
 
+    public static double canSeeTarget(){
+        return canSeeTarget;
+    }
+
     
     public CANSparkMax getHoodMotor(){
         return this.hoodMotor;
@@ -223,6 +262,9 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
 
     @Override
     public void task(){
+
+        
+
         // getting and posting encoder reading positions for turret, hood and shooter
         shooterEncoderReadingPosition = shooterMotor.getSelectedSensorPosition();
         shooterEncoderReadingVelocity = shooterMotor.getSelectedSensorVelocity();
@@ -250,26 +292,50 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
 
         switch (this.requestedPosition) {
             case FENDER:
+                shootFender = true;
                 aim = false;
-                setPointShooterPID = 6_000;
-                setPointHood = 39;
+                setPointShooterPID = 5_750;
+                setPointHood = 5;
                 setPointRotation = 0;
                 shoot = true;
+                hoodShooterMotorSpeed = 0.15;
+                System.out.println("FENDER");
                 break;
             case GENERAL:
+                shootFender = false;
                 aim = true;
                 setPointHood = getSetpointHood(totalDistance);
                 setPointShooterPID = getSetpointWheel(totalDistance);
                 shoot = true;
+                hoodShooterMotorSpeed = getSetpointHoodShooter(totalDistance);
+                System.out.println("GENERAL");
                 break;
+            case STOPAIM:
+                shootFender = false;
+                aim = false;
+                setPointShooterPID = 0;
+                setPointHood = 0;
+                setPointRotation = 0;
+                shoot = false;
+                hoodShooterMotorSpeed = 0;
+                System.out.println("STOPAIM");
+                break;
+            case STARTAIM:
+                System.out.println("STARTAIM");
             default:
+                System.out.println("DEFAULT");
+                shootFender = false;
                 setPointHood = 0;
                 shoot = false;
                 setPointShooterPID = 0;
+                hoodShooterMotorSpeed = 0;
                 aim = true;
                 break;
         }
 
+        this.hoodShooterMotor.set(hoodShooterMotorSpeed);
+
+        // hood position
         if (setPointHood > hoodEncoder.getPosition() - 1.5 && setPointHood < hoodEncoder.getPosition() + 1.5){
             hoodMotor.set(0);
         }
@@ -279,7 +345,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
             SmartDashboard.putNumber("Hood SetPoint", setPointHood);
         }
 
-        
+        // turret position
         if(aim){
             if(turretRotation > leftLimit && turretRotation < rightLimit){
                 if(canSeeTarget == 1.0 && !flipRight && !flipLeft){
@@ -305,7 +371,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                             flipLeft = true;
                         }
                     }
-                }else if (seen > 40){
+                }else if (seen > 20){
 
                     // System.out.println("Cannot see target");
                     // flip right
@@ -337,8 +403,14 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                         }
                     }
                     else{
-                        setPointRotation=leftLimit-1;
-                        flipLeft=true;
+                        if(turretRotation > 0){
+                            setPointRotation=leftLimit+1;
+                            flipLeft=true;
+                        }else{
+                            setPointRotation=rightLimit-1;
+                            flipRight = true;
+                        }
+                        
                     }
                 }
                 else{
@@ -369,6 +441,8 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         }
         this.shooterMotor.set(ControlMode.PercentOutput, currentOutput);
 
+        // hood shooter wheel
+
 
     }    
     
@@ -398,7 +472,8 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         boolean shooterReady = false;
         boolean turretReady = false;
         boolean hoodReady = false;
-        if(Math.abs(shooterEncoderReadingVelocity) > setPointShooterPID - 500 && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 500){
+        boolean hoodShooterReady = false;
+        if(Math.abs(shooterEncoderReadingVelocity) > setPointShooterPID - 400 && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 400){
             shooterReady = true;
         }
         if(turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5){
@@ -407,8 +482,15 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         if(hoodAngle > setPointHood - 2 && hoodAngle < setPointHood + 2){
             hoodReady = true;
         }
-        System.out.println(turretReady + " " + shooterReady + " " + hoodReady);
-        return turretReady && shooterReady && hoodReady;
+        if(hoodShooterMotorEncoder.getVelocity() > hoodShooterMotorSpeed * 10000){
+            hoodShooterReady = true;
+
+        }
+        System.out.println(hoodShooterMotorEncoder.getVelocity());
+        System.out.println(hoodAngle);
+        System.out.println(setPointHood);
+        System.out.println(turretReady + " " + shooterReady + " " + hoodReady + " " + hoodShooterReady);
+        return turretReady && shooterReady && hoodReady && hoodShooterReady;
         
     }
 
