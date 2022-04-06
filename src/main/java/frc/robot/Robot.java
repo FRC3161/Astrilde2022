@@ -260,7 +260,7 @@ public class Robot extends TitanBot {
   @Override
   public void autonomousRoutine() throws InterruptedException {
 
-    double[][] targets = {{0, 0, 0, 0}};
+    double[][] targets = {{0, 0, 0, 0}}; // {{distance: double, rotation: double, shoot: boolean, distanceMultiplier: double}}
 
     switch (m_autoSelected) {
       case k5Ball:
@@ -331,7 +331,6 @@ public class Robot extends TitanBot {
         index += 1;
       }
     }
-
     auto.stop();
 
   }

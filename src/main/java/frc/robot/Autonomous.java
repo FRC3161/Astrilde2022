@@ -161,7 +161,9 @@ public class Autonomous {
     }
 
     void stopShooting(){
-        this.ballPath.getShooter().setShotPosition(Shooter.ShotPosition.STARTAIM);;
+        if (!this.ballPath.getElevator().ballPrimed()){
+            this.ballPath.getShooter().setShotPosition(Shooter.ShotPosition.STARTAIM);
+        }
     }
 
     void stop(){
