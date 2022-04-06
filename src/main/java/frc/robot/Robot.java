@@ -307,7 +307,6 @@ public class Robot extends TitanBot {
         turned = true;
         shot = false;
       }
-
       if (!auto.atPosition(1)){ // if bot hasn't driven to target distance yet
         auto.drive();
         if (targets[index][2] == 1 && !shot){

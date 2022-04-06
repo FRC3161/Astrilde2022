@@ -125,8 +125,8 @@ public class Autonomous {
 
         // System.out.println("LeftSidePos: " + leftSidePos + ", RightSidePos: " + rightSidePos + " Target Pos: " + this.targetDistance);
         
-        boolean leftSideArrvied = leftSidePos > (this.targetDistance * multiplier) - revTolerance && leftSidePos < this.targetDistance + revTolerance;
-        boolean rightSideArrvied = rightSidePos > (this.targetDistance * multiplier) - revTolerance && rightSidePos < this.targetDistance + revTolerance;
+        boolean leftSideArrvied = leftSidePos >= (this.targetDistance * multiplier) - revTolerance && leftSidePos <= this.targetDistance + revTolerance;
+        boolean rightSideArrvied = rightSidePos >= (this.targetDistance * multiplier) - revTolerance && rightSidePos <= this.targetDistance + revTolerance;
         
         if (leftSideArrvied && rightSideArrvied) {
             arrived = true;
