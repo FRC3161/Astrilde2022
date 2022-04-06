@@ -148,6 +148,11 @@ public class RawDriveImpl extends RepeatingPooledSubsystem implements Drive {
         rightSide.set(speeds.right);
     }
 
+    public void setOutputRange(double percent) {
+      this.leftPIDController.setOutputRange(-percent, percent);
+      this.rightPIDController.setOutputRange(-percent, percent);
+    }
+
     @Override
     public Pair<Double, Double> getEncoderTicks(){
       return Pair.of(this.leftEncoder.getPosition(), this.rightEncoder.getPosition());

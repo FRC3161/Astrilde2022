@@ -20,6 +20,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.PIDBase.Tolerance;
 import frc.robot.subsystems.BallPath.Intake.Intake;
 import frc.robot.subsystems.BallPath.Intake.Intake.IntakeAction;
+import frc.robot.subsystems.BallPath.Shooter.Shooter;
+import frc.robot.subsystems.BallPath.Shooter.Shooter.ShotPosition;
 
 public class Autonomous {
 
@@ -60,7 +62,7 @@ public class Autonomous {
         // this.positionPIDController.setTolerance(DRIVE_DIST_TOLERANCE);
     }
 
-    public void turn(AHRS gyro, double degree) {
+    public boolean turn(AHRS gyro, double degree) {
         gyro.reset();
         double error = degree - gyro.getAngle();
         double kP = 0.005;
@@ -77,6 +79,8 @@ public class Autonomous {
 
         this.leftSide.set(0);
         this.rightSide.set(0);
+
+        return true;
     }
 
     public void resetPosition(){
@@ -119,7 +123,7 @@ public class Autonomous {
 
     public boolean atPosition(double multiplier){
         boolean arrived = false;
-        double revTolerance = 0.5;
+        double revTolerance = 1;
         double leftSidePos = this.leftSide.getEncoder().getPosition();
         double rightSidePos = this.rightSide.getEncoder().getPosition();
 
@@ -140,18 +144,24 @@ public class Autonomous {
         // boolean elevatorLoaded = ballPath.getElevator().ballPrimed();
         // boolean robotFull = intakeLoaded && elevatorLoaded;
 
-        ballPath.setAction(BallPath.BallAction.SHOOTGENERAL);
-        ballPath.getIntake().setAction(Intake.IntakeAction.IN);
+        ballPath.setAction(BallAction.INDEX);
     }
 
-    void shoot(double multiplier) throws InterruptedException {
-        if (this.atPosition(0.75)) {
-            ballPath.getElevator().setAction(Elevator.ElevatorAction.AUTO);
+    boolean shoot(double multiplier) {
+        if (this.atPosition(multiplier)) {
+            ((RawDriveImpl) this.drivetrain).setOutputRange(0.5);
+            ballPath.setAction(BallAction.SHOOTGENERAL);
+            return true;
         }
+        return false;
     }
 
     void stopIntake(){
         this.ballPath.getIntake().setAction(IntakeAction.STOP);
+    }
+
+    void stopShooting(){
+        this.ballPath.getShooter().setShotPosition(Shooter.ShotPosition.STARTAIM);;
     }
 
     void stop(){

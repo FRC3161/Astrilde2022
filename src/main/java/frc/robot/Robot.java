@@ -102,10 +102,11 @@ public class Robot extends TitanBot {
   @Override
   public void robotSetup() {
     System.out.println("Robot setup start");
-    m_chooser.setDefaultOption("Five Ball Auto", k5Ball);
-    m_chooser.setDefaultOption("Four Ball Auto", k4Ball);
-    m_chooser.setDefaultOption("Three Ball Auto", k3Ball);
+
     m_chooser.setDefaultOption("Two Ball Auto", k2Ball);
+    m_chooser.addOption("Three Ball Auto", k3Ball);
+    m_chooser.addOption("Four Ball Auto", k4Ball);
+    m_chooser.addOption("Five Ball Auto", k5Ball);
 
     SmartDashboard.putData("Auto choices", m_chooser);
 
@@ -264,10 +265,9 @@ public class Robot extends TitanBot {
     switch (m_autoSelected) {
       case k5Ball:
         targets = new double[][] {
-          {35, 0, 0, 1}, 
-          {-10, 0, 0, 1}, 
-          {60, 105, 1, 0.75}, 
-          {150, -30, 0, 1}, 
+          {41, 0, 0, 1},  
+          {70, 70, 1, 0.1}, 
+          {135, -40, 0, 1}, 
           {-50, 0, 1, 1}
         };
         break;
@@ -311,25 +311,28 @@ public class Robot extends TitanBot {
       if (!turned) { // If turn has not been made
         auto.setDriveDistance(targets[index][0]);
         // System.out.println("Is about to turn");
-        auto.turn(ahrs, targets[index][1]);
+        turned = auto.turn(ahrs, targets[index][1]);
         // System.out.println("Has turned");
         auto.resetPosition();
-        Timer.delay(1);
-        turned = true;
-        shot = false;
       }
+      Timer.delay(0.5);
       if (!auto.atPosition(1)){ // if bot hasn't driven to target distance yet
         auto.drive();
         if (targets[index][2] == 1 && !shot){
-          auto.shoot(targets[index][3]);
+          shot = auto.shoot(targets[index][3]);
+        } else {
+          auto.stopShooting();
         }
       } else {
-        Timer.delay(1);
+        // Timer.delay(1);
         auto.resetPosition();
         turned = false;
+        shot = false;
         index += 1;
       }
     }
+
+    auto.stop();
 
   }
 
