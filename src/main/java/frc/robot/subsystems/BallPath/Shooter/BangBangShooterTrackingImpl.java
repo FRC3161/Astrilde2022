@@ -1,6 +1,7 @@
 
 package frc.robot.subsystems.BallPath.Shooter;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -16,6 +17,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.BangBang2Controller;
 import frc.robot.BangBangController;
 
 public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem implements Shooter {
@@ -117,7 +119,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         this.hoodShooterMotor = hoodShooterMotor;
         this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
-        this.hoodWheelControllerLoop = new BangBangController(0.4, 500);
+        this.hoodWheelControllerLoop = new BangBang2Controller(1, 0.4, 500, Duration.ofMillis(500), 0.85);
 
         // Turret Rotation
         this.turretMotor = turretMotor;
@@ -133,7 +135,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // Shooter Wheel
         this.shooterMotor = shooterMotor;
-        this.shooterControllerLoop = new BangBangController(0.45, 200);
+        this.shooterControllerLoop = new BangBang2Controller(1, 0.45, 200, Duration.ofMillis(1_000), 0.85);
         SmartDashboard.putNumber("Shooter Set Speed", 0);
         // Hood
         this.hoodMotor = hoodMotor;
