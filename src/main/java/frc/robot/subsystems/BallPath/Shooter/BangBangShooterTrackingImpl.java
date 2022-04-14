@@ -64,9 +64,9 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
     // ### TURRET ROTATION PID ###
     private SparkMaxPIDController turret_PIDController;
-    public double turret_kP = 0.2;
-    public double turret_kI = 0.00005;
-    public double turret_kD = 0.08;
+    public double turret_kP = 0.21;
+    public double turret_kI = 0.0000;
+    public double turret_kD = 0.11;
     public double turret_kIz = 0;
     public double turret_kFF = 0;
     public double turret_kMaxOutput = 0.7;
@@ -119,7 +119,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         this.hoodShooterMotor = hoodShooterMotor;
         this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
-        this.hoodWheelControllerLoop = new BangBang2Controller(1, 0.4, 500, Duration.ofMillis(500), 0.85);
+        this.hoodWheelControllerLoop = new BangBangController(0.4, 300);
 
         // Turret Rotation
         this.turretMotor = turretMotor;
@@ -135,7 +135,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // Shooter Wheel
         this.shooterMotor = shooterMotor;
-        this.shooterControllerLoop = new BangBang2Controller(1, 0.45, 200, Duration.ofMillis(1_000), 0.85);
+        this.shooterControllerLoop = new BangBangController(0.45, 200);
         SmartDashboard.putNumber("Shooter Set Speed", 0);
         // Hood
         this.hoodMotor = hoodMotor;
@@ -167,7 +167,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
         double[] distances = {55.0, 77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
-        int[] hoodValues = {  5,   65,  85,  100, 110, 130,    155,    165,    175};
+        int[] hoodValues = {  5,   65,  85,  95, 110, 120,    130,    145,    155};
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
             if(distance < key){
@@ -212,7 +212,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
         double[] distances = {44.0,    77,  113.4, 145.5, 170.8, 220.5};
-        int[] wheelValues = {5_500, 5_800,  6_225, 6_700, 8_200, 8_200};
+        int[] wheelValues = {5_500, 5_750,  6_175, 6_700, 8_200, 8_200};
     
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -276,7 +276,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHood = 0;
                 setPointRotation = 0;
                 shoot = true;
-                setPointHoodShooterWheel = 4200; // 4250
+                setPointHoodShooterWheel = 3900; // 4250
                 // System.out.println("FENDER");
                 break;
             case GENERAL:
@@ -287,6 +287,12 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHoodShooterWheel = getSetpointHoodShooter(totalDistance);
                 // System.out.println("GENERAL");
                 break;
+            case AUTO:
+                aim = true;
+                setPointHoodShooterWheel = 4000;
+                setPointShooterFlywheel = 4000;
+                setPointHood = getSetpointHood(totalDistance);
+                shoot = false;
             case STOPAIM:
                 aim = false;
                 setPointShooterFlywheel = 0;

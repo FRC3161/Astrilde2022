@@ -7,6 +7,9 @@ import frc.robot.subsystems.Drivetrain.Drive;
 import frc.robot.subsystems.Drivetrain.RawDriveImpl;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import ca.team3161.lib.robot.TitanBot;
+
+import java.util.concurrent.TimeUnit;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
@@ -31,7 +34,7 @@ public class Autonomous {
     public boolean turn(AHRS gyro, double degree) throws InterruptedException {
         double target = gyro.getAngle() + degree;
         double error = target - gyro.getAngle();
-        double kP = 0.003;
+        double kP = 0.005;
         double tolerance = 1;
 
         if (degree != 0){
@@ -40,10 +43,10 @@ public class Autonomous {
                 this.leftSide.set(kP * error);
                 this.rightSide.set(-kP * error);
                 error = target - gyro.getAngle();
-                SmartDashboard.putNumber("LEFTSIDE POS: ", this.leftSide.get());
-                SmartDashboard.putNumber("RIGHTSIDE POS: ", this.rightSide.get());
                 if (Robot.DEBUG){
                     System.out.println(error);
+                    SmartDashboard.putNumber("LEFTSIDE POS: ", this.leftSide.get());
+                    SmartDashboard.putNumber("RIGHTSIDE POS: ", this.rightSide.get());
                 }
             }
         }

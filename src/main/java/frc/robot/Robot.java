@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.concurrent.TimeUnit;
+
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -100,9 +102,9 @@ public class Robot extends TitanBot {
     PortForwarder.add(5805, "limelight.local", 5805);
 
     m_chooser.setDefaultOption("Two Ball Auto", k2Ball);
-    m_chooser.addOption("Three Ball Auto", k3Ball);
-    m_chooser.addOption("Four Ball Auto", k4Ball);
-    m_chooser.addOption("Five Ball Auto", k5Ball);
+    // m_chooser.addOption("Three Ball Auto", k3Ball);
+    // m_chooser.addOption("Four Ball Auto", k4Ball);
+    // m_chooser.addOption("Five Ball Auto", k5Ball);
 
     SmartDashboard.putData("Auto choices", m_chooser);
 
@@ -139,6 +141,7 @@ public class Robot extends TitanBot {
 
     // INTAKE COMPONENTS
     WPI_TalonSRX intakeMotorController = new WPI_TalonSRX(RobotMap.INTAKE_TALON_PORT);
+    intakeMotorController.setInverted(true);
     this.intake = new IntakeImpl(intakeMotorController, intakeBeam);
 
     // SHOOTER COMPONENTS
@@ -278,9 +281,10 @@ public class Robot extends TitanBot {
         break;
       case k3Ball:
         targets = new double[][] {
-          {38, 0, 0, 0},
-          {89, 112, 1, 1}, 
-          {0, 0, 1, 1}
+          {13, 0, 0, 0},
+          {25, 0, 1, 1},
+          {-10, 0, 0, 0},
+          {89, 112, 1, 1}
         };
         break;
       case k2Ball:
@@ -295,6 +299,7 @@ public class Robot extends TitanBot {
         break;
     }
 
+    // targets = new double[][] {{-10, 0, 0, 0}, {0, 112, 0, 0}};
     int index = 0;
     boolean doneAuto = false;
 
@@ -303,8 +308,9 @@ public class Robot extends TitanBot {
 
     while (!doneAuto) {
       // System.out.println("INDEX: " + index);
+      // auto.resetPosition();
       auto.prepareToShoot();
-  
+
       if (targets[index][1] != 0) { // turn cycle not complete
         auto.turn(ahrs, targets[index][1]);
         auto.resetPosition();
@@ -316,7 +322,8 @@ public class Robot extends TitanBot {
       while (!auto.atPosition()){ // drive cycle not complete 
         auto.drive();
         if (index == 0){
-          Timer.delay(2);
+          // Timer.delay(0.75);
+          waitFor((long) 0.75, TimeUnit.SECONDS);
         }
       }
 
@@ -330,7 +337,7 @@ public class Robot extends TitanBot {
         } else {
           auto.shootGeneral();
         }
-        Timer.delay(5);
+        waitFor((long) 3.5, TimeUnit.SECONDS);
       }
 
       index += 1;
