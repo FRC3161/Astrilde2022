@@ -37,6 +37,7 @@ public class IntakeImpl extends RepeatingPooledSubsystem implements Intake {
 
     @Override
     public boolean ballPrimed() {
+        SmartDashboard.putBoolean("BALL PRIMED INTAKE", !beam.get());
         return !beam.get();
     }
 

@@ -7,24 +7,31 @@ import frc.robot.subsystems.Drivetrain.Drive;
 import frc.robot.subsystems.Drivetrain.RawDriveImpl;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import ca.team3161.lib.robot.TitanBot;
 
+import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 
-public class Autonomous {
+public class Autonomous{
     
     private Drive drivetrain;
     private BallPath ballPath;
 
     private double targetDistance;
 
+    interface Waiter{
+        void waitFor(long delay, TimeUnit unit) throws InterruptedException;
+    }
+
+    private final Waiter waiter;
+
     private final CANSparkMax leftSide;
     private final CANSparkMax rightSide;
 
-    public Autonomous(Drive drivetrain, BallPath ballPath){
+    public Autonomous(Waiter waiter, Drive drivetrain, BallPath ballPath){
+        this.waiter = waiter;
         this.drivetrain = drivetrain;
         this.leftSide = drivetrain.getLeftSide();
         this.rightSide = drivetrain.getRightSide();
@@ -35,11 +42,11 @@ public class Autonomous {
         double target = gyro.getAngle() + degree;
         double error = target - gyro.getAngle();
         double kP = 0.005;
-        double tolerance = 1;
+        double tolerance = 5;
 
         if (degree != 0){
             while (gyro.getAngle() < target - tolerance || gyro.getAngle() > target + tolerance){
-                Thread.sleep(20);
+                waiter.waitFor((long) 20, TimeUnit.MILLISECONDS);
                 this.leftSide.set(kP * error);
                 this.rightSide.set(-kP * error);
                 error = target - gyro.getAngle();

@@ -19,6 +19,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import ca.team3161.lib.robot.BlinkinLEDController;
 import ca.team3161.lib.robot.TitanBot;
+import ca.team3161.lib.robot.BlinkinLEDController.Pattern;
 import ca.team3161.lib.utils.controls.CubedJoystickMode;
 import ca.team3161.lib.utils.controls.DeadbandJoystickMode;
 import ca.team3161.lib.utils.controls.Gamepad.PressType;
@@ -62,6 +63,7 @@ public class Robot extends TitanBot {
   private static final String k4Ball = "Four Ball Auto";
   private static final String k3Ball = "Three Ball Auto";
   private static final String k2Ball = "Two Ball Auto";
+  private static final String SABO = "SABOTAGE Two Ball Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -102,9 +104,10 @@ public class Robot extends TitanBot {
     PortForwarder.add(5805, "limelight.local", 5805);
 
     m_chooser.setDefaultOption("Two Ball Auto", k2Ball);
-    // m_chooser.addOption("Three Ball Auto", k3Ball);
-    // m_chooser.addOption("Four Ball Auto", k4Ball);
-    // m_chooser.addOption("Five Ball Auto", k5Ball);
+    m_chooser.addOption("Three Ball Auto", k3Ball);
+    m_chooser.addOption("Four Ball Auto", k4Ball);
+    m_chooser.addOption("Five Ball Auto", k5Ball);
+    m_chooser.addOption("SABOTAGE Two Ball Auto", SABO);
 
     SmartDashboard.putData("Auto choices", m_chooser);
 
@@ -163,6 +166,7 @@ public class Robot extends TitanBot {
     hoodMotor.setInverted(true);
 
     BlinkinLEDController blinkenController = new BlinkinLEDController(8);
+    blinkenController.setLEDPattern(Pattern.BREATH_BLUE);
 
     CANSparkMax hoodShooterMotor = new CANSparkMax(RobotMap.HOOD_SHOOTER_PORT, MotorType.kBrushless);
     hoodShooterMotor.restoreFactoryDefaults();
@@ -198,6 +202,7 @@ public class Robot extends TitanBot {
     this.climberSubsystem.resetClimberPosition();
     ahrs = new AHRS(SPI.Port.kMXP); 
 
+    ahrs.reset();
     // register lifecycle components
     registerLifecycleComponent(driverPad);
     registerLifecycleComponent(operatorPad);
@@ -248,7 +253,7 @@ public class Robot extends TitanBot {
     shooter.start();
     ballSubsystem.start();
 
-    auto = new Autonomous(this.drive, this.ballSubsystem);
+    auto = new Autonomous(this::waitFor, this.drive, this.ballSubsystem);
   }
 
   /** This function is called periodically during autonomous. 
@@ -257,7 +262,7 @@ public class Robot extends TitanBot {
   @Override
   public void autonomousRoutine() throws InterruptedException {
 
-    double[][] targets; // {distance, angle, shotCheck, speedLimitCheck, speedLimit}
+    double[][] targets; // {distance, angle, shotCheck, shotType}
     //{38,0, 0}, {89,112, 1}, {155,-29, 1}, {-50,0, 0}, {0, 0, 1}
 
     switch (m_autoSelected) {
@@ -290,8 +295,13 @@ public class Robot extends TitanBot {
       case k2Ball:
         targets = new double[][] {
           {13, 0, 0, 0},
-          {25, 0, 1, 1}
-          // {0, 45, 0, 0}
+          {31, 0, 1, 1}
+        };
+        break;
+      case SABO:
+        targets = new double[][]{
+          {13, 0, 1, 1},
+          {31, 0, 0, 0}
         };
         break;
       default:
@@ -299,16 +309,13 @@ public class Robot extends TitanBot {
         break;
     }
 
-    // targets = new double[][] {{-10, 0, 0, 0}, {0, 112, 0, 0}};
     int index = 0;
     boolean doneAuto = false;
 
     auto.resetPosition();
-    auto.setOutputRange(0.7);
+    auto.setOutputRange(0.5);
 
     while (!doneAuto) {
-      // System.out.println("INDEX: " + index);
-      // auto.resetPosition();
       auto.prepareToShoot();
 
       if (targets[index][1] != 0) { // turn cycle not complete
@@ -322,8 +329,7 @@ public class Robot extends TitanBot {
       while (!auto.atPosition()){ // drive cycle not complete 
         auto.drive();
         if (index == 0){
-          // Timer.delay(0.75);
-          waitFor((long) 0.75, TimeUnit.SECONDS);
+          waitFor((long) 750, TimeUnit.MILLISECONDS);
         }
       }
 
@@ -337,7 +343,8 @@ public class Robot extends TitanBot {
         } else {
           auto.shootGeneral();
         }
-        waitFor((long) 3.5, TimeUnit.SECONDS);
+        waitFor((long) 3500, TimeUnit.MILLISECONDS);
+        auto.stopShooting();
       }
 
       index += 1;
@@ -346,7 +353,7 @@ public class Robot extends TitanBot {
         doneAuto = true;
       }
     }
-    auto.stop();
+    // auto.stop();
     auto.setOutputRange(1);
   }
 

@@ -25,7 +25,7 @@ public class BangBang2Controller extends BangBangController {
      * If current measurement is below the setpoint and outside of tolerance, return {@ spinupPower}, but if below and within tolerance, return {@link maintainancePower}.
      * */
     @Override
-    public double calculate(double measurement, double setpoint) {
+    public synchronized double calculate(double measurement, double setpoint) {
         this.m_measurement = measurement;
         if (this.m_setpoint != setpoint) {
             this.m_setpoint = setpoint;
@@ -34,7 +34,7 @@ public class BangBang2Controller extends BangBangController {
         addSample();
 
         if (measurement < setpoint) {
-            if (atSetpoint()) {
+            if (Math.abs(measurement - setpoint) > this.m_tolerance) {
                 return power;
             } else {
                 return spinupPower;
@@ -44,8 +44,11 @@ public class BangBang2Controller extends BangBangController {
     }
 
     @Override
-    public boolean atSetpoint() {
+    public synchronized boolean atSetpoint() {
         int numSamples = samples.size();
+        if (numSamples == 0) {
+            return false;
+        }
         int samplesInTolerance = 0;
         for (Sample s : samples) {
             boolean withinTolerance = Math.abs(s.getValue() - this.m_setpoint) < this.m_tolerance;
@@ -56,13 +59,13 @@ public class BangBang2Controller extends BangBangController {
         return (samplesInTolerance / numSamples) >= toleranceThreshold;
     }
 
-    public void reset() {
+    public synchronized void reset() {
         this.m_measurement = 0;
         this.m_setpoint = 0;
         this.samples.clear();
     }
 
-    private void addSample() {
+    private synchronized void addSample() {
         long now = System.nanoTime();
         long lookback = now - toleranceWindow.toNanos();
         samples.add(new Sample(now, this.m_measurement));

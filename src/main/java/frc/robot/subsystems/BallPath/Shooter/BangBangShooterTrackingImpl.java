@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.BangBang2Controller;
 import frc.robot.BangBangController;
+import frc.robot.ScalarController;
 
 public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem implements Shooter {
     
@@ -60,7 +61,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     int count;
 
     // turret hood motor pif
-    private final BangBangController hoodWheelControllerLoop;
+    private final ScalarController hoodWheelControllerLoop;
 
     // ### TURRET ROTATION PID ###
     private SparkMaxPIDController turret_PIDController;
@@ -119,7 +120,9 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         this.hoodShooterMotor = hoodShooterMotor;
         this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
-        this.hoodWheelControllerLoop = new BangBangController(0.4, 300);
+        this.hoodWheelControllerLoop = new ScalarController(10_000 / (4100 / 4000));
+        // this.hoodWheelControllerLoop = new BangBangController(0.37, 400);
+        // this.hoodWheelControllerLoop = new BangBang2Controller(1, 1, 300, Duration.ofMillis(500), 0.75);
 
         // Turret Rotation
         this.turretMotor = turretMotor;
@@ -135,8 +138,11 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // Shooter Wheel
         this.shooterMotor = shooterMotor;
-        this.shooterControllerLoop = new BangBangController(0.45, 200);
+        this.shooterControllerLoop = new BangBangController(0.415, 350);
+        // this.shooterControllerLoop = new BangBang2Controller(1, 0.8, 200, Duration.ofMillis(500), 0.75);
         SmartDashboard.putNumber("Shooter Set Speed", 0);
+        SmartDashboard.putBoolean("Shooter Wheel Ready", shooterControllerLoop.atSetpoint());
+        SmartDashboard.putBoolean("Hood Wheel Ready", hoodWheelControllerLoop.atSetpoint());
         // Hood
         this.hoodMotor = hoodMotor;
         this.hoodEncoder = hoodMotor.getEncoder();
@@ -166,8 +172,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
-        double[] distances = {55.0, 77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
-        int[] hoodValues = {  5,   65,  85,  95, 110, 120,    130,    145,    155};
+        double[] distances = {55.0, 60,  77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
+        int[] hoodValues = {  5, 40, 60,  80,  90, 95, 102,    115,    135,    140};
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
             if(distance < key){
@@ -211,8 +217,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     public double getSetpointWheel(Double distance){
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = {44.0,    77,  113.4, 145.5, 170.8, 220.5};
-        int[] wheelValues = {5_500, 5_750,  6_175, 6_700, 8_200, 8_200};
+        double[] distances = {44.0,    77, 90, 100, 113.4, 145.5, 170.8, 220.5};
+        int[] wheelValues = {5_500, 5_600, 5_750, 5_950, 6_175, 6_500, 7_800, 8_200};
     
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -276,7 +282,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHood = 0;
                 setPointRotation = 0;
                 shoot = true;
-                setPointHoodShooterWheel = 3900; // 4250
+                setPointHoodShooterWheel = 3200; // 4250
                 // System.out.println("FENDER");
                 break;
             case GENERAL:
@@ -308,7 +314,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 // System.out.println("DEFAULT");
                 setPointHood = 0; // getSetpointHood(totalDistance);
                 shoot = false;
-                setPointShooterFlywheel = 0; // 4000; // TODO change to optimal value
+                setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
                 setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
                 aim = true;
                 
@@ -321,7 +327,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT", setPointHoodShooterWheel);
 
         // hood position
-        if (setPointHood > hoodEncoder.getPosition() - 1.5 && setPointHood < hoodEncoder.getPosition() + 1.5){
+        if (setPointHood > hoodEncoder.getPosition() - 3 && setPointHood < hoodEncoder.getPosition() + 3){
             hoodMotor.set(0);
         }
         else{
@@ -416,7 +422,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
 
         // shooter wheel
-        if(setPointShooterFlywheel != 0 && shoot){
+        if(setPointShooterFlywheel != 0){
             currentOutput = shooterControllerLoop.calculate(shooterEncoderReadingVelocity, setPointShooterFlywheel);
             // currentOutput += setPointShooterFlywheel == 0 ? 0 : 0.05; // hack "feed forward"
             currentOutput = Utils.normalizePwm(currentOutput);
@@ -449,9 +455,10 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         if(turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5){
             turretReady = true;
         }
-        if(hoodAngle > setPointHood - 1 && hoodAngle < setPointHood + 1){
+        if(hoodAngle > setPointHood - 3.5 && hoodAngle < setPointHood + 3.5){
             hoodReady = true;
         }
+        SmartDashboard.putNumber("hood setpoint", setPointHood);
         SmartDashboard.putBoolean("SHOOTER READY", shooterReady);
         SmartDashboard.putBoolean("TURRET READY", turretReady);
         SmartDashboard.putBoolean("HOOD READY", hoodReady);

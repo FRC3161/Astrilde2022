@@ -27,13 +27,32 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
     @Override
     public void extendElbow(double speed) {
-        // Read the climber's position.
+        // double lowerLimit = -10_000;
+        // double upperLimit = 122_400;
+        // double position = primaryClimberMotorController.getSelectedSensorPosition();
+        // if (speed < 0 && position < lowerLimit) {
+        //     speed = 0;
+        // }
+        // if (speed > 0 && position > upperLimit) {
+        //     speed = 0;
+        // }
+
         this.primaryClimberMotorController.set(speed);
     }
 
     // The Neo motor controller.
     @Override
     public void extendShoulder(double speed) {
+        // double lowerLimit = -4;
+        // double upperLimit = 25.4;
+        // double position = primaryClimberMotorController.getSelectedSensorPosition();
+        // if (speed < 0 && position < lowerLimit) {
+        //     speed = 0;
+        // }
+        // if (speed > 0 && position > upperLimit) {
+        //     speed = 0;
+        // }
+
         this.shoulderMotorController.set(speed);
     }
 
@@ -75,7 +94,7 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         double rightClimberMotorControllerPosition = followerClimberMotorController.getSelectedSensorPosition();
         double lowerSoftStop = -3.25;
         if (positionNEO >= lowerSoftStop && !climberDeployed && !innerUp) {
-            extendShoulder(1);
+            this.shoulderMotorController.set(1);
         }else{
             climberDeployed = true;
         }
