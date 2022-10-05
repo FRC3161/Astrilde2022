@@ -77,7 +77,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
     
     private SparkMaxPIDController hood_PIDController;
-    public double hood_kP = 0.45; 
+    public double hood_kP = 0.50; 
     public double hood_kI = 0.000050;
     public double hood_kD = 0.05;
     public double hood_kIz = 0;
@@ -100,10 +100,23 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     double totalDistance;
     double totalAngleRadians;
 
+    // In order to tune the shooter for a new height, do the following.
+    // Change the "h1" variable to the height of the target (make a new net somewhere with a diferent height), and leave the rest of the variables the same
+    // for the interpolation functions leave the hoodwheelspeed one the same as the bang bang is tuned for it
+    // copy paste and then comment out the current function for getting the hood setpoint and the shooter setpoint.
+    // See how far off the shots are at each distance (this is outputted to console) and adjust the values in the functions for said distance
+    // so if the shot at 50 inches is too short, change the value at 50 inches to be longer than it currently is, or make a new data point if there is a large
+    // period of absent data.
+    
+
+
+
+
+
     double a1 = 35; // angle of limelight
     double a2 = y;
     // System.out.println(y);
-    double h2 = 103; // HEIGHT OF TARGET
+    double h2 = 57; // HEIGHT OF TARGET
     double h1 = 35; // HEIGHT OF LIMELIGHT
     double conversion = 0.8333;
 
@@ -168,18 +181,43 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         this.requestedPosition = shotPosition;
     }
 
+    // public double getSetpointHood(double distance){
+    //     double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
+    //     // System.out.println("Distance" + distance);
+    //     double returnAmount = 0;
+    //     double[] distances = {55.0, 60,  77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
+    //     int[] hoodValues = {  5, 40, 60,  80,  90, 95, 102,    115,    135,    140};
+    //     for (int i = 1; i < distances.length; i++) {
+    //         double key = distances[i];
+    //         if(distance < key){
+    //             distDif = distances[i] - distances[i-1];
+    //             hoodDif = hoodValues[i] - hoodValues[i-1];
+    //             difFromUpper = distances[i] - distance;
+    //             percentToAdd = difFromUpper / distDif;
+    //             amountToAdd = percentToAdd * hoodDif;
+    //             returnAmount = hoodValues[i]-amountToAdd;
+    //             break;
+    //         }
+    //     }
+    //     // SmartDashboard.getNumber("Hood Set Rotations", returnAmount);
+    //     // System.out.println(returnAmount);
+
+    //     return returnAmount;
+    // }
+
     public double getSetpointHood(double distance){
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
-        double[] distances = {55.0, 60,  77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
-        int[] hoodValues = {  5, 40, 60,  80,  90, 95, 102,    115,    135,    140};
+        double[] distances = {10, 55.0, 60,  77, 100, 120, 145, 167, 202.95, 244.77, 305.66};
+        int[] hoodValues = {0,  25, 40, 60,  80,  90, 95, 102,    115,    135,    140};
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
             if(distance < key){
                 distDif = distances[i] - distances[i-1];
                 hoodDif = hoodValues[i] - hoodValues[i-1];
                 difFromUpper = distances[i] - distance;
+
                 percentToAdd = difFromUpper / distDif;
                 amountToAdd = percentToAdd * hoodDif;
                 returnAmount = hoodValues[i]-amountToAdd;
@@ -187,7 +225,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             }
         }
         // SmartDashboard.getNumber("Hood Set Rotations", returnAmount);
-        // System.out.println(returnAmount);
+        System.out.println(returnAmount);
 
         return returnAmount;
     }
@@ -214,11 +252,33 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         return returnAmount;
     }
 
+    // public double getSetpointWheel(Double distance){
+    //     double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
+    //     double returnAmount = 0;
+    //     double[] distances = {44.0,    77, 90, 100, 113.4, 145.5, 170.8, 220.5};
+    //     int[] wheelValues = {5_500, 5_600, 5_750, 5_950, 6_175, 6_500, 7_800, 8_200};
+    
+    //     for (int i = 1; i < distances.length; i++) {
+    //         double key = distances[i];
+    //         if(distance < key){
+    //             distDif = distances[i] - distances[i-1];
+    //             wheelDif = wheelValues[i] - wheelValues[i-1];
+    //             difFromUpper = distances[i] - distance;
+    //             percentToAdd = difFromUpper / distDif;
+    //             amountToAdd = percentToAdd * wheelDif;
+    //             returnAmount = wheelValues[i] - amountToAdd;
+    //             break;
+    //         }
+    //     }
+    //     SmartDashboard.putNumber("RETURN AMOUNT", returnAmount); 
+    //     return returnAmount;
+    // }
+
     public double getSetpointWheel(Double distance){
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = {44.0,    77, 90, 100, 113.4, 145.5, 170.8, 220.5};
-        int[] wheelValues = {5_500, 5_600, 5_750, 5_950, 6_175, 6_500, 7_800, 8_200};
+        double[] distances = {21, 30, 44.0,    77, 90, 100, 113.4, 145.5, 170.8, 220.5};
+        int[] wheelValues = {2_300, 3_300, 3_500, 4_000, 4_400, 4_600, 4_700, 5_500, 6_100, 6_500};
     
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -236,6 +296,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         return returnAmount;
     }
 
+
+    // Possibly what one is searching for.
     public static double canSeeTarget(){
         return canSeeTarget;
     }
@@ -278,25 +340,25 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         switch (this.requestedPosition) {
             case FENDER:
                 aim = false;
-                setPointShooterFlywheel = 4400; //4700
+                setPointShooterFlywheel = 5900; //4700 (As of September 8, 2022: 4400).
                 setPointHood = 0;
                 setPointRotation = 0;
                 shoot = true;
-                setPointHoodShooterWheel = 3200; // 4250
+                setPointHoodShooterWheel = 1500; // 4250 // 3200
                 // System.out.println("FENDER");
                 break;
             case GENERAL:
                 aim = true;
                 setPointHood = getSetpointHood(totalDistance);
-                setPointShooterFlywheel = getSetpointWheel(totalDistance);
+                setPointShooterFlywheel = 5200;  //  As of September 8, 2022: getSetpointWheel(totalDistance);
                 shoot = true;
-                setPointHoodShooterWheel = getSetpointHoodShooter(totalDistance);
+                setPointHoodShooterWheel = 4999;
                 // System.out.println("GENERAL");
                 break;
             case AUTO:
                 aim = true;
                 setPointHoodShooterWheel = 4000;
-                setPointShooterFlywheel = 4000;
+                setPointShooterFlywheel = 2200;  // As of September 8, 2022: 4000.
                 setPointHood = getSetpointHood(totalDistance);
                 shoot = false;
             case STOPAIM:
@@ -314,7 +376,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 // System.out.println("DEFAULT");
                 setPointHood = 0; // getSetpointHood(totalDistance);
                 shoot = false;
-                setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
+                setPointShooterFlywheel = 2200; // 4000; // TODO change to optimal value  // As of September 8, 2022: 4000.
                 setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
                 aim = true;
                 
@@ -433,7 +495,6 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // hood shooter wheel
 
-
     }    
     
 
@@ -449,8 +510,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     @Override
     public boolean readyToShoot(){
         boolean shooterReady = shooterControllerLoop.atSetpoint();
-        boolean turretReady = false;
-        boolean hoodReady = false;
+        boolean turretReady = true;
+        boolean hoodReady = true;
         boolean hoodShooterReady = hoodWheelControllerLoop.atSetpoint();
         if(turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5){
             turretReady = true;

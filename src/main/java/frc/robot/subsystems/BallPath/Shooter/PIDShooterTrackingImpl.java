@@ -116,6 +116,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     NetworkTableEntry ta = table.getEntry("ta");
     NetworkTableEntry tv = table.getEntry("tv");
     NetworkTableEntry targetSkew = table.getEntry("ts");
+    
     double x, y, a;
     static double canSeeTarget;
     double totalAngle;
@@ -125,7 +126,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
 
     double a1 = 35; // angle of limelight
     double a2 = y;
-    // System.out.println(y);
+    
     double h2 = 103; // HEIGHT OF TARGET
     double h1 = 35; // HEIGHT OF LIMELIGHT
     double conversion = 0.8333;
@@ -275,7 +276,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     @Override
     public void task(){
 
-        
+        System.out.println("thing" + y);
 
         // getting and posting encoder reading positions for turret, hood and shooter
         shooterEncoderReadingPosition = shooterMotor.getSelectedSensorPosition();
@@ -474,9 +475,9 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     @Override
     public boolean readyToShoot(){
         boolean shooterReady = shooterPid.atSetpoint();
-        boolean turretReady = false;
-        boolean hoodReady = false;
-        boolean hoodShooterReady = false;
+        boolean turretReady = true;
+        boolean hoodReady = true;
+        boolean hoodShooterReady = true;
         // if(shooterReady){
         //     System.out.println(shooterEncoderReadingVelocity);
         // }

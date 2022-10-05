@@ -27,15 +27,16 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
     @Override
     public void extendElbow(double speed) {
-        // double lowerLimit = -10_000;
-        // double upperLimit = 122_400;
-        // double position = primaryClimberMotorController.getSelectedSensorPosition();
-        // if (speed < 0 && position < lowerLimit) {
-        //     speed = 0;
-        // }
-        // if (speed > 0 && position > upperLimit) {
-        //     speed = 0;
-        // }
+        double lowerLimit = -10_000;
+        double upperLimit = 110000;
+        double position = primaryClimberMotorController.getSelectedSensorPosition();
+
+        if (speed < 0 && position < lowerLimit) {
+            speed = 0;
+        }
+        else if (speed > 0 && position > upperLimit) {
+            speed = 0;
+        }
 
         this.primaryClimberMotorController.set(speed);
     }
@@ -43,15 +44,16 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     // The Neo motor controller.
     @Override
     public void extendShoulder(double speed) {
-        // double lowerLimit = -4;
-        // double upperLimit = 25.4;
-        // double position = primaryClimberMotorController.getSelectedSensorPosition();
-        // if (speed < 0 && position < lowerLimit) {
-        //     speed = 0;
-        // }
-        // if (speed > 0 && position > upperLimit) {
-        //     speed = 0;
-        // }
+        double lowerLimit = -2;
+        double upperLimit = 20.0;
+        double position = this.shoulderMotorController.getEncoder().getPosition();
+
+        if (speed < 0 && position < lowerLimit) {
+            speed = 0;
+        }
+        else if (speed > 0 && position > upperLimit) {
+            speed = 0;
+        }
 
         this.shoulderMotorController.set(speed);
     }
@@ -92,24 +94,30 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         double positionNEO = this.shoulderMotorController.getEncoder().getPosition();
         double leftClimberMotorControllerPosition = primaryClimberMotorController.getSelectedSensorPosition();
         double rightClimberMotorControllerPosition = followerClimberMotorController.getSelectedSensorPosition();
-        double lowerSoftStop = -3.25;
-        if (positionNEO >= lowerSoftStop && !climberDeployed && !innerUp) {
-            this.shoulderMotorController.set(1);
-        }else{
-            climberDeployed = true;
-        }
+        double lowerSoftStop = 0;
+
+        if (leftClimberMotorControllerPosition >= 120_000) {
+            this.primaryClimberMotorController.set(0);
+            this.followerClimberMotorController.set(0);
+        } 
+
+        // if (positionNEO >= lowerSoftStop && !climberDeployed && !innerUp) {
+        //     this.shoulderMotorController.set(1);
+        // }else{
+        //     climberDeployed = true;
+        // }
         
-        if(climberDeployed && positionNEO <= 10 && !innerUp){
-            this.shoulderMotorController.set(1);
-        }else{
-            innerUp = true;
-        }
+        // if(climberDeployed && positionNEO <= 10 && !innerUp){
+        //     this.shoulderMotorController.set(1);
+        // }else{
+        //     innerUp = true;
+        // }
         
         
-        if(climberDeployed && innerUp && leftClimberMotorControllerPosition < 100000){
-            this.shoulderMotorController.set(0);
-            this.primaryClimberMotorController.set(0.2);
-        }
+        // if(climberDeployed && innerUp && leftClimberMotorControllerPosition < 100000){
+        //     this.shoulderMotorController.set(0);
+        //     this.primaryClimberMotorController.set(0.2);
+        // }
 
         
     }
