@@ -244,7 +244,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
                 turretReady = false;
             } else if(turretEncoderReadingPosition >= setPointRotation - turretBuffer && turretEncoderReadingPosition <= setPointRotation + turretBuffer){
                 turretMotor.set(ControlMode.PercentOutput, 0);
-                turretReady = true;
+               //    turretReady = true;
             }else if(turretEncoderReadingPosition <= setPointRotation - turretBuffer){
                 turretMotor.set(ControlMode.PercentOutput, turretSpeed);
                 turretReady = false;
@@ -255,7 +255,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         }else{
             if(x < 1 && x > -1){
                 turretMotor.set(ControlMode.PercentOutput, 0);
-                turretReady = true;
+                //turretReady = true;
             }else if(x > 1){
                 turretMotor.set(ControlMode.PercentOutput, turretSpeed);
                 turretReady = false;

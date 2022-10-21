@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Queue;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BangBang2Controller extends BangBangController {
 

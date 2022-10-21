@@ -340,7 +340,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         switch (this.requestedPosition) {
             case FENDER:
                 aim = false;
-                setPointShooterFlywheel = 5900; //4700 (As of September 8, 2022: 4400).
+                setPointShooterFlywheel = 2850 ; //4700 (As of September 8, 2022: 4400). 
                 setPointHood = 0;
                 setPointRotation = 0;
                 shoot = true;
@@ -350,9 +350,10 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             case GENERAL:
                 aim = true;
                 setPointHood = getSetpointHood(totalDistance);
-                setPointShooterFlywheel = 5200;  //  As of September 8, 2022: getSetpointWheel(totalDistance);
+                SmartDashboard.putNumber("setpoint hood", setPointHood);
+                setPointShooterFlywheel = 3800;  //  As of September 8, 2022: getSetpointWheel(totalDistance);
                 shoot = true;
-                setPointHoodShooterWheel = 4999;
+                setPointHoodShooterWheel = 4800;
                 // System.out.println("GENERAL");
                 break;
             case AUTO:
@@ -379,7 +380,6 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointShooterFlywheel = 2200; // 4000; // TODO change to optimal value  // As of September 8, 2022: 4000.
                 setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
                 aim = true;
-                
                 break;
         }
 
@@ -395,88 +395,90 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         else{
             // setting hood setpoint
             hood_PIDController.setReference(setPointHood, CANSparkMax.ControlType.kPosition);
+            SmartDashboard.putNumber("Hood Position", hoodEncoder.getPosition());
             SmartDashboard.putNumber("Hood SetPoint", setPointHood);
+            System.out.println(hoodEncoder.getPosition());
         }
-
+        
         // turret position
-        if(aim){
-            if(turretRotation > leftLimit && turretRotation < rightLimit){
-                if(canSeeTarget == 1.0 && !flipRight && !flipLeft){
-                    // System.out.println("can see");
-                    seen = 0;
-                    // System.out.println("Can see target and in limits");
-                    if(x < rightLimitLimelight && x > leftLimitLimelight){
-                        SmartDashboard.putNumber("Within limits", 1);
-                        setPointRotation = turretRotation;
-                    }else{
-                        setPointRotation = turretRotation + x*conversion;
-                        SmartDashboard.putNumber("Within limits", 0);
-                        SmartDashboard.putNumber("x", x);
-                        SmartDashboard.putNumber("x conversion", x*conversion);
-                        SmartDashboard.putNumber("setPointRotation", setPointRotation);
-                        SmartDashboard.putNumber("turretRotation", turretRotation);
-                        if(setPointRotation <= leftLimit){
-                            setPointRotation = rightLimit-1;
-                            flipRight = true;
-                        }else if(setPointRotation >= rightLimit){
-                            setPointRotation = leftLimit+1;
-                            flipLeft = true;
-                        }
-                    }
-                }else if (seen > 20){
+        // if(aim){
+        //     if(turretRotation > leftLimit && turretRotation < rightLimit){
+        //         if(canSeeTarget == 1.0 && !flipRight && !flipLeft){
+        //             // System.out.println("can see");
+        //             seen = 0;
+        //             // System.out.println("Can see target and in limits");
+        //             if(x < rightLimitLimelight && x > leftLimitLimelight){
+        //                 SmartDashboard.putNumber("Within limits", 1);
+        //                 setPointRotation = turretRotation;
+        //             }else{
+        //                 setPointRotation = turretRotation + x*conversion;
+        //                 SmartDashboard.putNumber("Within limits", 0);
+        //                 SmartDashboard.putNumber("x", x);
+        //                 SmartDashboard.putNumber("x conversion", x*conversion);
+        //                 SmartDashboard.putNumber("setPointRotation", setPointRotation);
+        //                 SmartDashboard.putNumber("turretRotation", turretRotation);
+        //                 if(setPointRotation <= leftLimit){
+        //                     setPointRotation = rightLimit-1;
+        //                     flipRight = true;
+        //                 }else if(setPointRotation >= rightLimit){
+        //                     setPointRotation = leftLimit+1;
+        //                     flipLeft = true;
+        //                 }
+        //             }
+        //         }else if (seen > 20){
 
-                    // System.out.println("Cannot see target");
-                    // flip right
-                    if(flipLeft){
-                        if(canSeeTarget == 1.0){
-                            if(turretRotation + x*conversion > leftLimit && turretRotation + x*conversion < rightLimit){
-                                flipLeft = false;
-                                setPointRotation = turretRotation + x*conversion;
-                            }
+        //             // System.out.println("Cannot see target");
+        //             // flip right
+        //             if(flipLeft){
+        //                 if(canSeeTarget == 1.0){
+        //                     if(turretRotation + x*conversion > leftLimit && turretRotation + x*conversion < rightLimit){
+        //                         flipLeft = false;
+        //                         setPointRotation = turretRotation + x*conversion;
+        //                     }
                         
-                        }else if (turretRotation <= (leftLimit+10)){
-                            setPointRotation = rightLimit -1;
-                            flipRight=true;
-                            flipLeft = false;
+        //                 }else if (turretRotation <= (leftLimit+10)){
+        //                     setPointRotation = rightLimit -1;
+        //                     flipRight=true;
+        //                     flipLeft = false;
                             
-                        }
-                    // flip left
-                    }else if (flipRight){
-                        if(canSeeTarget == 1.0){
-                            if(turretRotation + x*conversion > leftLimit && turretRotation + x*conversion < rightLimit){
-                                flipRight = false;
-                                setPointRotation = turretRotation + x*conversion;
-                            }
-                        }else if (turretRotation >= rightLimit - 10){
-                            setPointRotation = leftLimit+1;
-                            flipLeft=true;
-                            flipRight = false;
+        //                 }
+        //             // flip left
+        //             }else if (flipRight){
+        //                 if(canSeeTarget == 1.0){
+        //                     if(turretRotation + x*conversion > leftLimit && turretRotation + x*conversion < rightLimit){
+        //                         flipRight = false;
+        //                         setPointRotation = turretRotation + x*conversion;
+        //                     }
+        //                 }else if (turretRotation >= rightLimit - 10){
+        //                     setPointRotation = leftLimit+1;
+        //                     flipLeft=true;
+        //                     flipRight = false;
                             
-                        }
-                    }
-                    else{
-                        if(turretRotation > 0){
-                            setPointRotation=leftLimit+1;
-                            flipLeft=true;
-                        }else{
-                            setPointRotation=rightLimit-1;
-                            flipRight = true;
-                        }
+        //                 }
+        //             }
+        //             else{
+        //                 if(turretRotation > 0){
+        //                     setPointRotation=leftLimit+1;
+        //                     flipLeft=true;
+        //                 }else{
+        //                     setPointRotation=rightLimit-1;
+        //                     flipRight = true;
+        //                 }
                         
-                    }
-                }
-                else{
-                    seen ++;
-                    // System.out.println("counting");
-                }
-                // flip left until you see a target?
-            // just get back in the limits
-            }else if(turretRotation < leftLimit){
-                setPointRotation = leftLimit+1;
-            }else if(turretRotation < rightLimit){
-                setPointRotation = rightLimit-1;
-            }
-        }
+        //             }
+        //         }
+        //         else{
+        //             seen ++;
+        //             // System.out.println("counting");
+        //         }
+        //         // flip left until you see a target?
+        //     // just get back in the limits
+        //     }else if(turretRotation < leftLimit){
+        //         setPointRotation = leftLimit+1;
+        //     }else if(turretRotation < rightLimit){
+        //         setPointRotation = rightLimit-1;
+        //     }
+        // }
         // System.out.println("Set point rotation" + setPointRotation);
         // System.out.println("Current turret Rotation" + turretRotation);
         turret_PIDController.setReference(setPointRotation, CANSparkMax.ControlType.kPosition);

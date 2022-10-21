@@ -353,7 +353,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
 
         // hood position
         if (setPointHood > hoodEncoder.getPosition() - 1.5 && setPointHood < hoodEncoder.getPosition() + 1.5){
-            hoodMotor.set(0);
+            //hoodMotor.set(0);
         }
         else{
             // setting hood setpoint
@@ -362,7 +362,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         }
 
         // turret position
-        if(aim){
+      /*  if(aim){
             if(turretRotation > leftLimit && turretRotation < rightLimit){
                 if(canSeeTarget == 1.0 && !flipRight && !flipLeft){
                     // System.out.println("can see");
@@ -441,6 +441,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 setPointRotation = rightLimit-1;
             }
         }
+        */
         // System.out.println("Set point rotation" + setPointRotation);
         // System.out.println("Current turret Rotation" + turretRotation);
         turret_PIDController.setReference(setPointRotation, CANSparkMax.ControlType.kPosition);
@@ -475,14 +476,14 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     @Override
     public boolean readyToShoot(){
         boolean shooterReady = shooterPid.atSetpoint();
-        boolean turretReady = true;
+        boolean turretReady = false;
         boolean hoodReady = true;
         boolean hoodShooterReady = true;
         // if(shooterReady){
         //     System.out.println(shooterEncoderReadingVelocity);
         // }
         if(turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5){
-            turretReady = true;
+            turretReady = false; //if code isnt working, change to true
         }
         if(hoodAngle > setPointHood - 1 && hoodAngle < setPointHood + 1){
             hoodReady = true;
