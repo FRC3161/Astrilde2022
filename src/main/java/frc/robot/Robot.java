@@ -50,7 +50,6 @@ import frc.robot.subsystems.Climber.ClimberImpl;
 import frc.robot.subsystems.Drivetrain.Drive;
 import frc.robot.subsystems.Drivetrain.RawDriveImpl;
 
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -69,13 +68,13 @@ public class Robot extends TitanBot {
 
   private Drive drive;
   private XBoxOneController driverPad;
-  private XBoxOneController operatorPad;  
+  private XBoxOneController operatorPad;
   private BallPath ballSubsystem;
   private Intake intake;
   private Elevator elevator;
   private Shooter shooter;
   private Climber climberSubsystem;
-  public static final boolean DEBUG = false;
+  public static final boolean DEBUG = Constans.debug;
   double turretEncoderReadingPosition;
   double turretEncoderReadingVelocity;
   private boolean set = false;
@@ -83,19 +82,20 @@ public class Robot extends TitanBot {
   AHRS ahrs;
   public static boolean toggle;
 
-
   @Override
   public int getAutonomousPeriodLengthSeconds() {
     return 15;
   }
+
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
   public void robotSetup() {
     System.out.println("Robot setup start");
-    
+
     PortForwarder.add(5800, "limelight.local", 5800);
     PortForwarder.add(5801, "limelight.local", 5801);
     PortForwarder.add(5802, "limelight.local", 5802);
@@ -116,12 +116,12 @@ public class Robot extends TitanBot {
     CANSparkMax leftControllerFollower = new CANSparkMax(RobotMap.NEO_LEFT_DRIVE_PORTS[1], MotorType.kBrushless);
     CANSparkMax rightControllerPrimary = new CANSparkMax(RobotMap.NEO_RIGHT_DRIVE_PORTS[0], MotorType.kBrushless);
     CANSparkMax rightControllerFollower = new CANSparkMax(RobotMap.NEO_RIGHT_DRIVE_PORTS[1], MotorType.kBrushless);
-    
+
     leftControllerPrimary.restoreFactoryDefaults();
     leftControllerFollower.restoreFactoryDefaults();
     rightControllerPrimary.restoreFactoryDefaults();
     rightControllerFollower.restoreFactoryDefaults();
-    
+
     leftControllerFollower.follow(leftControllerPrimary);
     rightControllerFollower.follow(rightControllerPrimary);
 
@@ -129,7 +129,7 @@ public class Robot extends TitanBot {
     leftControllerFollower.setSmartCurrentLimit(30);
     rightControllerPrimary.setSmartCurrentLimit(30);
     rightControllerFollower.setSmartCurrentLimit(30);
-    
+
     leftControllerPrimary.setIdleMode(CANSparkMax.IdleMode.kBrake);
     leftControllerFollower.setIdleMode(CANSparkMax.IdleMode.kBrake);
     rightControllerPrimary.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -174,33 +174,35 @@ public class Robot extends TitanBot {
     hoodShooterMotor.setInverted(true);
     hoodShooterMotor.setIdleMode(IdleMode.kCoast);
 
-    // this.shooter = new PIDShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor, hoodShooterMotor);
+    // this.shooter = new PIDShooterTrackingImpl(turretMotor, shooterMotor,
+    // hoodMotor, hoodShooterMotor);
     this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor, hoodShooterMotor);
 
     // ELEVATOR COMPONENTS
     WPI_TalonSRX elevatorMotorController = new WPI_TalonSRX(RobotMap.ELEVATOR_TALON_PORT);
     this.elevator = new ElevatorImpl(elevatorMotorController, elevatorBeam);
 
-    this.ballSubsystem = new BallPathImpl(intake, elevator, shooter,blinkenController);
-    
+    this.ballSubsystem = new BallPathImpl(intake, elevator, shooter, blinkenController);
 
     // Driverpad impl
     this.driverPad = new XBoxOneController(RobotMap.DRIVER_PAD_PORT);
     this.operatorPad = new XBoxOneController(RobotMap.OPERATOR_PAD_PORT);
 
     // CLIMBER COMPONENTS.
-    WPI_TalonSRX primaryClimberMotorController = new WPI_TalonSRX(RobotMap.CLIMBER_TALON_PORTS[0]); 
-    WPI_TalonSRX followerClimberMotorController = new WPI_TalonSRX(RobotMap.CLIMBER_TALON_PORTS[1]); 
-    CANSparkMax shoulderMotorController = new CANSparkMax(RobotMap.NEO_SHOULDER_LIFTER_PORT, MotorType.kBrushless); 
+    WPI_TalonSRX primaryClimberMotorController = new WPI_TalonSRX(RobotMap.CLIMBER_TALON_PORTS[0]);
+    WPI_TalonSRX followerClimberMotorController = new WPI_TalonSRX(RobotMap.CLIMBER_TALON_PORTS[1]);
+    CANSparkMax shoulderMotorController = new CANSparkMax(RobotMap.NEO_SHOULDER_LIFTER_PORT, MotorType.kBrushless);
 
-    // Restore factory defaults method (of which is not supported [under the same name] for Talon SRX)?
+    // Restore factory defaults method (of which is not supported [under the same
+    // name] for Talon SRX)?
     followerClimberMotorController.follow(primaryClimberMotorController);
-    followerClimberMotorController.setInverted(InvertType.OpposeMaster);  // Invert the follower?
+    followerClimberMotorController.setInverted(InvertType.OpposeMaster); // Invert the follower?
 
-    this.climberSubsystem = new ClimberImpl(primaryClimberMotorController, followerClimberMotorController, shoulderMotorController);
+    this.climberSubsystem = new ClimberImpl(primaryClimberMotorController, followerClimberMotorController,
+        shoulderMotorController);
     // System.out.println("CLIMBER" + this.climberSubsystem);
     this.climberSubsystem.resetClimberPosition();
-    ahrs = new AHRS(SPI.Port.kMXP); 
+    ahrs = new AHRS(SPI.Port.kMXP);
 
     ahrs.reset();
     // register lifecycle components
@@ -216,27 +218,41 @@ public class Robot extends TitanBot {
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like
+   * diagnostics that you want ran during disabled, autonomous, teleoperated and
+   * test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
 
-    // double ticks = ((PIDShooterTrackingImpl) this.shooter).getHoodMotor().getEncoder().getCountsPerRevolution() * ((PIDShooterTrackingImpl) this.shooter).getHoodMotor().getEncoder().getPosition();
+    // double ticks = ((PIDShooterTrackingImpl)
+    // this.shooter).getHoodMotor().getEncoder().getCountsPerRevolution() *
+    // ((PIDShooterTrackingImpl)
+    // this.shooter).getHoodMotor().getEncoder().getPosition();
     // SmartDashboard.putNumber("Hooder Encoder Reading", ticks);
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different
+   * autonomous modes using the dashboard. The sendable chooser code works with
+   * the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+   * chooser code and
+   * uncomment the getString line to get the auto name from the text box below the
+   * Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure
+   * below with additional strings. If using the SendableChooser make sure to add
+   * them to the
    * chooser code above as well.
    */
   @Override
@@ -256,56 +272,58 @@ public class Robot extends TitanBot {
     auto = new Autonomous(this::waitFor, this.drive, this.ballSubsystem);
   }
 
-  /** This function is called periodically during autonomous. 
+  /**
+   * This function is called periodically during autonomous.
+   * 
    * @throws InterruptedException
-   * */
+   */
   @Override
   public void autonomousRoutine() throws InterruptedException {
 
     double[][] targets; // {distance, angle, shotCheck, shotType}
-    //{38,0, 0}, {89,112, 1}, {155,-29, 1}, {-50,0, 0}, {0, 0, 1}
+    // {38,0, 0}, {89,112, 1}, {155,-29, 1}, {-50,0, 0}, {0, 0, 1}
 
     switch (m_autoSelected) {
       case k5Ball:
         targets = new double[][] {
-          {38, 0, 0, 0},
-          {89, 112, 1, 1}, 
-          {155, -29, 1, 1}, 
-          {-50, 0, 0, 0},
-          {0, 0, 1, 1}
+            { 38, 0, 0, 0 },
+            { 89, 112, 1, 1 },
+            { 155, -29, 1, 1 },
+            { -50, 0, 0, 0 },
+            { 0, 0, 1, 1 }
         };
         break;
       case k4Ball:
         targets = new double[][] {
-          {38, 0, 0, 0},
-          {89, 112, 1, 1}, 
-          {155, -29, 1, 1}, 
-          {-50, 0, 0, 0},
-          {0, 0, 1, 1}
+            { 38, 0, 0, 0 },
+            { 89, 112, 1, 1 },
+            { 155, -29, 1, 1 },
+            { -50, 0, 0, 0 },
+            { 0, 0, 1, 1 }
         };
         break;
       case k3Ball:
         targets = new double[][] {
-          {13, 0, 0, 0},
-          {25, 0, 1, 1},
-          {-10, 0, 0, 0},
-          {89, 112, 1, 1}
+            { 13, 0, 0, 0 },
+            { 25, 0, 1, 1 },
+            { -10, 0, 0, 0 },
+            { 89, 112, 1, 1 }
         };
         break;
       case k2Ball:
         targets = new double[][] {
-          {13, 0, 0, 0},
-          {31, 0, 1, 1}
+            { 13, 0, 0, 0 },
+            { 31, 0, 1, 1 }
         };
         break;
       case SABO:
-        targets = new double[][]{
-          {13, 0, 1, 1},
-          {31, 0, 0, 0}
+        targets = new double[][] {
+            { 13, 0, 1, 1 },
+            { 31, 0, 0, 0 }
         };
         break;
       default:
-        targets = new double[][] {{0, 0, 0, 0}};
+        targets = new double[][] { { 0, 0, 0, 0 } };
         break;
     }
 
@@ -322,13 +340,12 @@ public class Robot extends TitanBot {
         auto.turn(ahrs, targets[index][1]);
         auto.resetPosition();
       }
-      
-      auto.setDriveDistance(targets[index][0]);
-      
 
-      while (!auto.atPosition()){ // drive cycle not complete 
+      auto.setDriveDistance(targets[index][0]);
+
+      while (!auto.atPosition()) { // drive cycle not complete
         auto.drive();
-        if (index == 0){
+        if (index == 0) {
           waitFor((long) 750, TimeUnit.MILLISECONDS);
         }
       }
@@ -337,8 +354,8 @@ public class Robot extends TitanBot {
       auto.setDriveDistance(0);
       auto.drive();
 
-      if (targets[index][2] != 0){ // shoot cycle not complete
-        if (targets[index][3] == 0){
+      if (targets[index][2] != 0) { // shoot cycle not complete
+        if (targets[index][3] == 0) {
           auto.shootFender();
         } else {
           auto.shootGeneral();
@@ -348,7 +365,7 @@ public class Robot extends TitanBot {
       }
 
       index += 1;
-      
+
       if (index == targets.length) { // If auto is complete
         doneAuto = true;
       }
@@ -362,43 +379,59 @@ public class Robot extends TitanBot {
   }
 
   public void setToggle(boolean t) {
-      toggle = t;
+    toggle = t;
   }
+
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopSetup() {
     System.out.println("telleop setup");
     JoystickMode deadbandMode = new DeadbandJoystickMode(0.05);
-    this.driverPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS, deadbandMode.andThen(x -> x * 1).andThen(new SquaredJoystickMode()));
-    this.driverPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS, new InvertedJoystickMode().andThen(deadbandMode));
+    this.driverPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS,
+        deadbandMode.andThen(x -> x * 1).andThen(new SquaredJoystickMode()));
+    this.driverPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS,
+        new InvertedJoystickMode().andThen(deadbandMode));
 
     this.operatorPad.bind(ControllerBindings.OVERRIDE_ELEVATOR_GATE, this.elevator::setGateOverride);
 
-    this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.PRESS, () -> this.ballSubsystem.setAction(BallAction.SHOOTFENDER));
-    this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.RELEASE, () -> this.ballSubsystem.setAction(BallAction.NONE));
+    this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.PRESS,
+        () -> this.ballSubsystem.setAction(BallAction.SHOOTFENDER));
+    this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.RELEASE,
+        () -> this.ballSubsystem.setAction(BallAction.NONE));
 
-    this.operatorPad.bind(ControllerBindings.SHOOT_GENERAL, PressType.PRESS, () -> this.ballSubsystem.setAction(BallAction.SHOOTGENERAL));
-    this.operatorPad.bind(ControllerBindings.SHOOT_GENERAL, PressType.RELEASE, () -> this.ballSubsystem.setAction(BallAction.NONE));
+    this.operatorPad.bind(ControllerBindings.SHOOT_GENERAL, PressType.PRESS,
+        () -> this.ballSubsystem.setAction(BallAction.SHOOTGENERAL));
+    this.operatorPad.bind(ControllerBindings.SHOOT_GENERAL, PressType.RELEASE,
+        () -> this.ballSubsystem.setAction(BallAction.NONE));
 
     this.operatorPad.bind(ControllerBindings.NOT_AIM, PressType.PRESS, () -> setToggle(!getToggle()));
-    // this.operatorPad.bind(ControllerBindings.ELEVATOR_IN, PressType.PRESS, ()-> this.ballSubsystem.setAction(BallAction.SHOOT));
-    // this.operatorPad.bind(ControllerBindings.ELEVATOR_IN, PressType.RELEASE, ()-> this.ballSubsystem.setAction(BallAction.STOP_SHOOTING));
+    // this.operatorPad.bind(ControllerBindings.ELEVATOR_IN, PressType.PRESS, ()->
+    // this.ballSubsystem.setAction(BallAction.SHOOT));
+    // this.operatorPad.bind(ControllerBindings.ELEVATOR_IN, PressType.RELEASE, ()->
+    // this.ballSubsystem.setAction(BallAction.STOP_SHOOTING));
 
-    // this.operatorPad.bind(ControllerBindings.INTAKE, PressType.PRESS, () -> this.ballSubsystem.setAction(BallAction.INDEX));
-    // this.operatorPad.bind(ControllerBindings.INTAKE, PressType.RELEASE, () -> this.ballSubsystem.setAction(BallAction.NONE));
-    
-    // this.operatorPad.bind(ControllerBindings.OUTAKE, PressType.PRESS, () -> this.ballSubsystem.setAction(BallAction.OUT));
-    // this.operatorPad.bind(ControllerBindings.OUTAKE, PressType.RELEASE, () -> this.ballSubsystem.setAction(BallAction.NONE));
+    // this.operatorPad.bind(ControllerBindings.INTAKE, PressType.PRESS, () ->
+    // this.ballSubsystem.setAction(BallAction.INDEX));
+    // this.operatorPad.bind(ControllerBindings.INTAKE, PressType.RELEASE, () ->
+    // this.ballSubsystem.setAction(BallAction.NONE));
 
-    this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.PRESS, ()-> this.climberSubsystem.primeClimber());
+    // this.operatorPad.bind(ControllerBindings.OUTAKE, PressType.PRESS, () ->
+    // this.ballSubsystem.setAction(BallAction.OUT));
+    // this.operatorPad.bind(ControllerBindings.OUTAKE, PressType.RELEASE, () ->
+    // this.ballSubsystem.setAction(BallAction.NONE));
+
+    this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.PRESS,
+        () -> this.climberSubsystem.primeClimber());
     this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.RELEASE, () -> this.climberSubsystem.none());
 
     this.ballSubsystem.setAction(BallPath.BallAction.MANUAL);
 
     // Testing climber bindings.
-    this.operatorPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS, new InvertedJoystickMode().andThen(new CubedJoystickMode()));
-    this.operatorPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS, new InvertedJoystickMode().andThen(new CubedJoystickMode()));
-    
+    this.operatorPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS,
+        new InvertedJoystickMode().andThen(new CubedJoystickMode()));
+    this.operatorPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS,
+        new InvertedJoystickMode().andThen(new CubedJoystickMode()));
+
     driverPad.start();
     operatorPad.start();
     drive.start();
@@ -406,67 +439,67 @@ public class Robot extends TitanBot {
     elevator.start();
     shooter.start();
     ballSubsystem.start();
-    climberSubsystem.start();  // Hopefully this is correct?
+    climberSubsystem.start(); // Hopefully this is correct?
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopRoutine() {
-      // Drivetrain.
-      double forward, turn;
-      forward = this.driverPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
-      turn = this.driverPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS);
+    // Drivetrain.
+    double forward, turn;
+    forward = this.driverPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
+    turn = this.driverPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS);
 
-      this.drive.drive(forward, turn); 
+    this.drive.drive(forward, turn);
 
-      double intake, outake;
+    double intake, outake;
 
-      intake = this.operatorPad.getValue(ControllerBindings.INTAKE, ControllerBindings.LEFT_TRIGGER_AXIS);
-      outake = this.operatorPad.getValue(ControllerBindings.OUTAKE, ControllerBindings.RIGHT_TRIGGER_AXIS);
+    intake = this.operatorPad.getValue(ControllerBindings.INTAKE, ControllerBindings.LEFT_TRIGGER_AXIS);
+    outake = this.operatorPad.getValue(ControllerBindings.OUTAKE, ControllerBindings.RIGHT_TRIGGER_AXIS);
 
-      if (intake > 0.9 && !this.ballSubsystem.getAction().equals(BallAction.OUT)){
-        this.ballSubsystem.setAction(BallAction.INDEX);
-      } else if (this.ballSubsystem.getAction().equals(BallAction.INDEX)){
-        this.ballSubsystem.setAction(BallAction.NONE);
-      }
-
-      if (outake > 0.9 && !this.ballSubsystem.getAction().equals(BallAction.INDEX)){
-        this.ballSubsystem.setAction(BallAction.OUT);
-      } else if (this.ballSubsystem.getAction().equals(BallAction.OUT)){
-        this.ballSubsystem.setAction(BallAction.NONE);
-      }
-
-      // Ballpath.
-      if(toggle){
-        this.ballSubsystem.setAction(BallAction.NO_SHOOT);
-        set = false;
-      }else{
-        if(!set){
-          this.ballSubsystem.setAction(BallAction.YES_SHOOT);
-          set = true;
-        }
-      }
-
-      // Climber (attempt).
-      double climber, shoulderSpeed;
-      climber = this.operatorPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS);
-      shoulderSpeed = this.operatorPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
-
-      if (Robot.DEBUG) {
-        System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
-      }
-
-      this.climberSubsystem.extendElbow(climber);
-      this.climberSubsystem.extendShoulder(shoulderSpeed);
+    if (intake > 0.9 && !this.ballSubsystem.getAction().equals(BallAction.OUT)) {
+      this.ballSubsystem.setAction(BallAction.INDEX);
+    } else if (this.ballSubsystem.getAction().equals(BallAction.INDEX)) {
+      this.ballSubsystem.setAction(BallAction.NONE);
     }
 
-  static DpadDirection angleToDpadDirection(int angle) {
-      for (DpadDirection d : DpadDirection.values()) {
-          if (d.getAngle() == angle) {
-              return d;
-          }
+    if (outake > 0.9 && !this.ballSubsystem.getAction().equals(BallAction.INDEX)) {
+      this.ballSubsystem.setAction(BallAction.OUT);
+    } else if (this.ballSubsystem.getAction().equals(BallAction.OUT)) {
+      this.ballSubsystem.setAction(BallAction.NONE);
+    }
+
+    // Ballpath.
+    if (toggle) {
+      this.ballSubsystem.setAction(BallAction.NO_SHOOT);
+      set = false;
+    } else {
+      if (!set) {
+        this.ballSubsystem.setAction(BallAction.YES_SHOOT);
+        set = true;
       }
-      return DpadDirection.NONE;
+    }
+
+    // Climber (attempt).
+    double climber, shoulderSpeed;
+    climber = this.operatorPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS);
+    shoulderSpeed = this.operatorPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
+
+    if (Robot.DEBUG) {
+      System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
+    }
+
+    this.climberSubsystem.extendElbow(climber);
+    this.climberSubsystem.extendShoulder(shoulderSpeed);
+  }
+
+  static DpadDirection angleToDpadDirection(int angle) {
+    for (DpadDirection d : DpadDirection.values()) {
+      if (d.getAngle() == angle) {
+        return d;
+      }
+    }
+    return DpadDirection.NONE;
   }
 
   /** This function is called once when the robot is disabled. */
@@ -491,14 +524,17 @@ public class Robot extends TitanBot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledRoutine() {}
+  public void disabledRoutine() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testSetup() {}
+  public void testSetup() {
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testRoutine() {}
+  public void testRoutine() {
+  }
 
 }
