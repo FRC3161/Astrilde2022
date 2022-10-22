@@ -13,7 +13,10 @@ import ca.team3161.lib.robot.LifecycleEvent;
 import ca.team3161.lib.robot.subsystem.RepeatingIndependentSubsystem;
 import ca.team3161.lib.utils.Utils;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constans;
+import frc.robot.Robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -134,6 +137,12 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     boolean flipped = false;
     boolean ramped = false;
 
+    // ### FENDER values ###
+    private double fenderHoodShooterMotorSpeed = Constans.Shooter.Fender.hoodShooterMotorSpeed;
+    private int fenderSetPointHood = Constans.Shooter.Fender.setPointHood;
+    private int fenderSetPointRotation = Constans.Shooter.Fender.setPointRotation;
+    private int fenderSetPointShooterPID = Constans.Shooter.Fender.setPointShooterPID;
+
     public PIDShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor,
             CANSparkMax hoodShooterMotor) {
         super(10, TimeUnit.MILLISECONDS);
@@ -175,6 +184,13 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         hood_PIDController.setIZone(hood_kIz);
         hood_PIDController.setFF(hood_kFF);
         hood_PIDController.setOutputRange(hood_kMinOutput, hood_kMaxOutput);
+
+        if (Robot.DEBUG) {
+            SmartDashboard.putNumber("fenderHoodShooterMotorSpeed", this.fenderHoodShooterMotorSpeed);
+            SmartDashboard.putNumber("fenderSetPointHood", this.fenderSetPointHood);
+            SmartDashboard.putNumber("fenderSetPointRotation", this.fenderSetPointRotation);
+            SmartDashboard.putNumber("fenderSetPointShooterPID", this.fenderSetPointShooterPID);
+        }
     }
 
     @Override
@@ -292,15 +308,38 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         totalDistance = heightDif / rs;
         SmartDashboard.putNumber("Distance", totalDistance);
 
+        if (Robot.DEBUG) {
+            double fenderhoodshootermotorspeed = SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
+                    this.fenderHoodShooterMotorSpeed);
+            int fendersetpointhood = (int) SmartDashboard.getNumber("fenderSetPointHood", this.fenderSetPointHood);
+            int fendersetpointrotation = (int) SmartDashboard.getNumber("fenderSetPointRotation",
+                    this.fenderSetPointRotation);
+            int fendersetpointshooterPID = (int) SmartDashboard.getNumber("fenderSetPointShooterPID",
+                    this.fenderSetPointShooterPID);
+
+            if (fendersetpointshooterPID != this.fenderSetPointShooterPID) {
+                this.fenderSetPointShooterPID = fendersetpointshooterPID;
+            }
+            if (fendersetpointhood != this.fenderSetPointHood) {
+                this.fenderSetPointHood = fendersetpointhood;
+            }
+            if (fendersetpointrotation != this.fenderSetPointRotation) {
+                this.fenderSetPointRotation = fendersetpointrotation;
+            }
+            if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
+                this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
+            }
+        }
+
         switch (this.requestedPosition) {
             case FENDER:
                 shootFender = true;
                 aim = false;
-                setPointShooterPID = 7000; // 4700
-                setPointHood = 0;
-                setPointRotation = 0;
+                setPointShooterPID = this.fenderSetPointShooterPID;
+                setPointHood = this.fenderSetPointHood;
+                setPointRotation = this.fenderSetPointRotation;
                 shoot = true;
-                hoodShooterMotorSpeed = 9000; // 4250
+                hoodShooterMotorSpeed = this.fenderHoodShooterMotorSpeed;
                 // System.out.println("FENDER");
                 break;
             case GENERAL:
@@ -331,7 +370,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 shoot = false;
                 setPointShooterPID = 0;
                 hoodShooterMotorSpeed = 0;
-                aim = true;
+                aim = Constans.Shooter.Default.aim;
 
                 break;
         }
