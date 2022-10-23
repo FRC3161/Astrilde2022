@@ -371,6 +371,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 setPointShooterPID = 0;
                 hoodShooterMotorSpeed = 0;
                 aim = Constans.Shooter.Default.aim;
+                setPointRotation = 0;
 
                 break;
         }
