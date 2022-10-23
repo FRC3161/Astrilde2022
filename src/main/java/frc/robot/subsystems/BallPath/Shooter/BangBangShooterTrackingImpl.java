@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.BangBang2Controller;
 import frc.robot.BangBangController;
+import frc.robot.Constans;
 import frc.robot.ScalarController;
 
 public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem implements Shooter {
@@ -174,8 +175,9 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
-        double[] distances = { 55.0, 60, 77, 100, 120, 145, 167, 202.95, 244.77, 305.66 };
-        int[] hoodValues = { 5, 40, 60, 80, 90, 95, 102, 115, 135, 140 };
+        double[] distances = Constans.Turret.HoodPoint.distances;
+        int[] hoodValues = Constans.Turret.HoodPoint.hoodValues;
+
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
             if (distance < key) {
@@ -197,8 +199,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     public double getSetpointHoodShooter(Double distance) {
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = { 44.0, 77, 113.4, 145.5, 170.8, 220.5 };
-        double[] wheelValues = { 4000, 4000, 4000, 4000, 4000, 4000 };
+        double[] distances = Constans.Turret.HoodShooter.distances;
+        double[] wheelValues = Constans.Turret.HoodShooter.wheelValues;
 
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
