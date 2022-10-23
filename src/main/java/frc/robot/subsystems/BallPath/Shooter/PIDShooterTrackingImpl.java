@@ -138,10 +138,10 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     boolean ramped = false;
 
     // ### FENDER values ###
-    private double fenderHoodShooterMotorSpeed = Constans.Shooter.Fender.hoodShooterMotorSpeed;
-    private int fenderSetPointHood = Constans.Shooter.Fender.setPointHood;
-    private int fenderSetPointRotation = Constans.Shooter.Fender.setPointRotation;
-    private int fenderSetPointShooterPID = Constans.Shooter.Fender.setPointShooterPID;
+    private double fenderHoodShooterMotorSpeed = Constans.Turret.Fender.hoodShooterMotorSpeed;
+    private int fenderSetPointHood = Constans.Turret.Fender.setPointHood;
+    private int fenderSetPointRotation = Constans.Turret.Fender.setPointRotation;
+    private int fenderSetPointShooterPID = Constans.Turret.Fender.setPointShooterPID;
 
     public PIDShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor,
             CANSparkMax hoodShooterMotor) {
@@ -370,7 +370,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 shoot = false;
                 setPointShooterPID = 0;
                 hoodShooterMotorSpeed = 0;
-                aim = Constans.Shooter.Default.aim;
+                aim = Constans.Turret.Default.aim;
                 setPointRotation = 0;
 
                 break;
