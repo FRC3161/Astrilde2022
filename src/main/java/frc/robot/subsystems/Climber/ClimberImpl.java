@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import ca.team3161.lib.robot.LifecycleEvent;
 import ca.team3161.lib.robot.subsystem.RepeatingPooledSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constans;
 
 public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
@@ -17,6 +18,7 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     private CANSparkMax shoulderMotorController;
     private boolean climberDeployed = false;
     private boolean innerUp = false;
+    private boolean unLatched = false;
 
     public ClimberImpl(WPI_TalonSRX primaryClimberMotorController, WPI_TalonSRX followerClimberMotorController,
             CANSparkMax shoulderMotorController) {
@@ -104,12 +106,42 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
     }
 
-    @Override
-    public void primeClimber() {
+    public void unlatch() {
+        if (this.unLatched)
+            return;
+
         double positionNEO = this.shoulderMotorController.getEncoder().getPosition();
         double leftClimberMotorControllerPosition = primaryClimberMotorController.getSelectedSensorPosition();
-        double rightClimberMotorControllerPosition = followerClimberMotorController.getSelectedSensorPosition();
-        double lowerSoftStop = 0;
+        // double rightClimberMotorControllerPosition =
+        // followerClimberMotorController.getSelectedSensorPosition();
+
+        if (positionNEO >= Constans.Climber.shoulderUnlatchSpot) {
+            this.shoulderMotorController.set(Constans.Climber.unlatchSpeedShoulder);
+        } else {
+            this.shoulderMotorController.set(0);
+        }
+
+        if (leftClimberMotorControllerPosition >= Constans.Climber.primaryUnlatchSpot) {
+            this.primaryClimberMotorController.set(Constans.Climber.unlatchSpeedPrimary);
+        } else {
+            this.primaryClimberMotorController.set(0);
+        }
+
+        if (positionNEO <= Constans.Climber.shoulderUnlatchSpot
+                && leftClimberMotorControllerPosition <= Constans.Climber.primaryUnlatchSpot) {
+            this.unLatched = true;
+        }
+
+    }
+
+    @Override
+    public void primeClimber() {
+        // double positionNEO = this.shoulderMotorController.getEncoder().getPosition();
+        double leftClimberMotorControllerPosition = primaryClimberMotorController.getSelectedSensorPosition();
+        // double rightClimberMotorControllerPosition =
+        // followerClimberMotorController.getSelectedSensorPosition();
+        // double lowerSoftStop = 0;
+        this.unlatch();
         if (leftClimberMotorControllerPosition >= 120_000) {
             this.primaryClimberMotorController.set(0);
             this.followerClimberMotorController.set(0);
