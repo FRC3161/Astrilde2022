@@ -36,7 +36,7 @@ public class Constans {
     public static class Climber {
         public static final double shoulderUnlatchSpot = -3.5;
         public static final double primaryUnlatchSpot = -3.5;
-        public static final int unlatchSpeedPrimary = 1;
-        public static final double unlatchSpeedShoulder = 0.5;
+        public static final int unlatchSpeedPrimary = -1;
+        public static final double unlatchSpeedShoulder = -0.5;
     }
 }

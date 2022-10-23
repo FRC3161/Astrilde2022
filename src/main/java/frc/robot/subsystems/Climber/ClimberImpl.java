@@ -142,6 +142,10 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         // followerClimberMotorController.getSelectedSensorPosition();
         // double lowerSoftStop = 0;
         this.unlatch();
+
+        /**
+         * I think it's for preventing the bot from breaking itself.
+         */
         if (leftClimberMotorControllerPosition >= 120_000) {
             this.primaryClimberMotorController.set(0);
             this.followerClimberMotorController.set(0);
