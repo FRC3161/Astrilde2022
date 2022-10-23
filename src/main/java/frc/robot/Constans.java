@@ -20,7 +20,17 @@ public class Constans {
         }
     }
 
-    public static class Shooter {
+    public static class Turret {
+        public static class HoodShooter {
+            public static final double[] distances = { 44.0, 77, 113.4, 145.5, 170.8, 220.5 };
+            public static final double[] wheelValues = { 4000, 4000, 4000, 4000, 4000, 4000 };
+        }
+
+        public static class HoodPoint {
+            public static final double[] distances = { 55.0, 60, 77, 100, 120, 145, 167, 202.95, 244.77, 305.66 };
+            public static final int[] hoodValues = { 5, 40, 60, 80, 90, 95, 102, 115, 135, 140 };
+        }
+
         public static class Default {
             public static final boolean aim = false;
         }
