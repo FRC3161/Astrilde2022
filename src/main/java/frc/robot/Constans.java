@@ -1,7 +1,7 @@
 package frc.robot;
 
 public class Constans {
-    public static final boolean debug = false;
+    public static final boolean debug = true;
 
     public static class DriveTrain {
         public static final double kP = 0.00075;
@@ -22,13 +22,15 @@ public class Constans {
 
     public static class Turret {
         public static class HoodShooter {
-            public static final double[] distances = { 44.0, 77, 113.4, 145.5, 170.8, 220.5 };
-            public static final double[] wheelValues = { 4000, 4000, 4000, 4000, 4000, 4000 };
+            public static final double[] distances = {44.0, 113.4, 145.5, 170.8, 220.5};;
+            public static final double[] wheelValues = {5_500, 7_500, 9_500, 10_000, 11_000};
+            public static final double power = 0.415;
+            public static final double tolerance = 350;
         }
 
         public static class HoodPoint {
-            public static final double[] distances = { 55.0, 60, 77, 100, 120, 145, 167, 202.95, 244.77, 305.66 };
-            public static final int[] hoodValues = { 5, 40, 60, 80, 90, 95, 102, 115, 135, 140 };
+            public static final double[] distances = {55.0, 153.0, 202.95, 244.77, 305.66};
+            public static final int[] hoodValues = {100_000, 230_000, 300_000, 330_000, 400_000};
         }
 
         public static class Default {

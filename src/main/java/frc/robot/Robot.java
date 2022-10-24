@@ -168,15 +168,16 @@ public class Robot extends TitanBot {
     BlinkinLEDController blinkenController = new BlinkinLEDController(8);
     blinkenController.setLEDPattern(Pattern.BREATH_BLUE);
 
-    CANSparkMax hoodShooterMotor = new CANSparkMax(RobotMap.HOOD_SHOOTER_PORT, MotorType.kBrushless);
-    hoodShooterMotor.restoreFactoryDefaults();
-    hoodShooterMotor.setSmartCurrentLimit(20);
-    hoodShooterMotor.setInverted(true);
-    hoodShooterMotor.setIdleMode(IdleMode.kCoast);
+    // CANSparkMax hoodShooterMotor = new CANSparkMax(RobotMap.HOOD_SHOOTER_PORT, MotorType.kBrushless);
+    // hoodShooterMotor.restoreFactoryDefaults();
+    // hoodShooterMotor.setSmartCurrentLimit(20);
+    // hoodShooterMotor.setInverted(true);
+    // hoodShooterMotor.setIdleMode(IdleMode.kCoast);
 
     // this.shooter = new PIDShooterTrackingImpl(turretMotor, shooterMotor,
     // hoodMotor, hoodShooterMotor);
-    this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor, hoodShooterMotor);
+    // this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor, hoodShooterMotor);
+    this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor);
 
     // ELEVATOR COMPONENTS
     WPI_TalonSRX elevatorMotorController = new WPI_TalonSRX(RobotMap.ELEVATOR_TALON_PORT);
@@ -382,6 +383,10 @@ public class Robot extends TitanBot {
     toggle = t;
   }
 
+  public void resetHOME() {
+
+  }
+
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopSetup() {
@@ -393,7 +398,7 @@ public class Robot extends TitanBot {
         new InvertedJoystickMode().andThen(deadbandMode));
 
     this.operatorPad.bind(ControllerBindings.OVERRIDE_ELEVATOR_GATE, this.elevator::setGateOverride);
-
+    this.operatorPad.bind(ControllerBindings.RESET_HOME, () -> this.ballSubsystem.setAction(BallAction.RESET));
     this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.PRESS,
         () -> this.ballSubsystem.setAction(BallAction.SHOOTFENDER));
     this.operatorPad.bind(ControllerBindings.SHOOT_FENDER, PressType.RELEASE,

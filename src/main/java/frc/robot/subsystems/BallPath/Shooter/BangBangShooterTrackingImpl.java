@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.BangBang2Controller;
 import frc.robot.BangBangController;
 import frc.robot.Constans;
+import frc.robot.Robot;
 import frc.robot.ScalarController;
 
 public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem implements Shooter {
@@ -28,7 +29,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     private final TalonFX shooterMotor;
     // private final TalonSRX hoodMotor;
     private final CANSparkMax hoodMotor;
-    private final CANSparkMax hoodShooterMotor;
+    // private final CANSparkMax hoodShooterMotor;
 
     private double leftLimit = -90.0;
     private double rightLimit = 90.0;
@@ -44,7 +45,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     private double turretRotation;
     private RelativeEncoder hoodEncoder;
     private RelativeEncoder turretEncoder;
-    private RelativeEncoder hoodShooterMotorEncoder;
+    // private RelativeEncoder hoodShooterMotorEncoder;
 
     private boolean shoot = false;
     private double currentOutput;
@@ -110,17 +111,20 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     double heightDif = h2 - h1;
     int seen = 0;
     long logItter = 0;
-    private double setPointHoodShooterWheel = 0;
+    // private double setPointHoodShooterWheel = 0;
     int ballsOut = 0;
     boolean flipped = false;
     boolean ramped = false;
 
-    public BangBangShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor,
-            CANSparkMax hoodShooterMotor) {
+    private int fenderSetPointHood = Constans.Turret.Fender.setPointHood;
+    private int fenderSetPointRotation = Constans.Turret.Fender.setPointRotation;
+    private int fenderSetPointShooterPID = Constans.Turret.Fender.setPointShooterPID;
+
+    public BangBangShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor) {
         super(10, TimeUnit.MILLISECONDS);
 
-        this.hoodShooterMotor = hoodShooterMotor;
-        this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
+        // this.hoodShooterMotor =hoodShooterMotor;
+        // this.hoodShooterMotorEncoder = hoodShooterMotor.getEncoder();
         this.hoodWheelControllerLoop = new ScalarController(10_000 / (4100 / 4000));
         // this.hoodWheelControllerLoop = new BangBangController(0.37, 400);
         // this.hoodWheelControllerLoop = new BangBang2Controller(1, 1, 300,
@@ -140,7 +144,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // Shooter Wheel
         this.shooterMotor = shooterMotor;
-        this.shooterControllerLoop = new BangBangController(0.415, 350);
+        this.shooterControllerLoop = new BangBangController(Constans.Turret.HoodShooter.power, Constans.Turret.HoodShooter.tolerance);
         // this.shooterControllerLoop = new BangBang2Controller(1, 0.8, 200,
         // Duration.ofMillis(500), 0.75);
         SmartDashboard.putNumber("Shooter Set Speed", 0);
@@ -156,6 +160,12 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         hood_PIDController.setIZone(hood_kIz);
         hood_PIDController.setFF(hood_kFF);
         hood_PIDController.setOutputRange(hood_kMinOutput, hood_kMaxOutput);
+        if (Robot.DEBUG) {
+            // SmartDashboard.putNumber("fenderHoodShooterMotorSpeed", this.fenderHoodShooterMotorSpeed);
+            SmartDashboard.putNumber("fenderSetPointHood", this.fenderSetPointHood);
+            SmartDashboard.putNumber("fenderSetPointRotation", this.fenderSetPointRotation);
+            SmartDashboard.putNumber("fenderSetPointShooterPID", this.fenderSetPointShooterPID);
+        }
     }
 
     @Override
@@ -163,7 +173,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         require(turretMotor);
         require(shooterMotor);
         require(hoodMotor);
-        require(hoodShooterMotor);
+        // require(hoodShooterMotor);
     }
 
     @Override
@@ -274,14 +284,44 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         totalDistance = heightDif / rs;
         SmartDashboard.putNumber("Distance", totalDistance);
 
+        if (Robot.DEBUG) {
+            // double fenderhoodshootermotorspeed = SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
+            //         this.fenderHoodShooterMotorSpeed);
+            int fendersetpointhood = (int) SmartDashboard.getNumber("fenderSetPointHood", this.fenderSetPointHood);
+            int fendersetpointrotation = (int) SmartDashboard.getNumber("fenderSetPointRotation",
+                    this.fenderSetPointRotation);
+            int fendersetpointshooterPID = (int) SmartDashboard.getNumber("fenderSetPointShooterPID",
+                    this.fenderSetPointShooterPID);
+
+            if (fendersetpointshooterPID != this.fenderSetPointShooterPID) {
+                this.fenderSetPointShooterPID = fendersetpointshooterPID;
+            }
+            if (fendersetpointhood != this.fenderSetPointHood) {
+                this.fenderSetPointHood = fendersetpointhood;
+            }
+            if (fendersetpointrotation != this.fenderSetPointRotation) {
+                this.fenderSetPointRotation = fendersetpointrotation;
+            }
+            // if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
+            //     this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
+            // }
+        }
+
         switch (this.requestedPosition) {
-            case FENDER:
+            case RESET:
+                this.resetSensors();
                 aim = false;
-                setPointShooterFlywheel = 4400; // 4700
+                setPointShooterFlywheel = 0;
                 setPointHood = 0;
                 setPointRotation = 0;
+                shoot = false;
+            case FENDER:
+                aim = false;
+                setPointShooterFlywheel = this.fenderSetPointShooterPID; // 4700
+                setPointHood = this.fenderSetPointHood;
+                setPointRotation = this.fenderSetPointRotation;
                 shoot = true;
-                setPointHoodShooterWheel = 3200; // 4250
+                // setPointHoodShooterWheel = 3200; // 4250
                 // System.out.println("FENDER");
                 break;
             case GENERAL:
@@ -289,12 +329,12 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHood = getSetpointHood(totalDistance);
                 setPointShooterFlywheel = getSetpointWheel(totalDistance);
                 shoot = true;
-                setPointHoodShooterWheel = getSetpointHoodShooter(totalDistance);
+                // setPointHoodShooterWheel = getSetpointHoodShooter(totalDistance);
                 // System.out.println("GENERAL");
                 break;
             case AUTO:
                 aim = true;
-                setPointHoodShooterWheel = 4000;
+                // setPointHoodShooterWheel = 4000;
                 setPointShooterFlywheel = 4000;
                 setPointHood = getSetpointHood(totalDistance);
                 shoot = false;
@@ -304,7 +344,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHood = 0;
                 setPointRotation = 0;
                 shoot = false;
-                setPointHoodShooterWheel = 0;
+                // setPointHoodShooterWheel = 0;
                 // System.out.println("STOPAIM");
                 break;
             case STARTAIM:
@@ -314,17 +354,18 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 setPointHood = 0; // getSetpointHood(totalDistance);
                 shoot = false;
                 setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
-                setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
+                // setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
                 aim = true;
 
                 break;
         }
 
-        double hoodShooterMotorVelocity = hoodShooterMotorEncoder.getVelocity();
-        this.hoodShooterMotor
-                .set(hoodWheelControllerLoop.calculate(hoodShooterMotorVelocity, setPointHoodShooterWheel));
-        SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY", hoodShooterMotorVelocity);
-        SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT", setPointHoodShooterWheel);
+
+        // double hoodShooterMotorVelocity = hoodShooterMotorEncoder.getVelocity();
+        // this.hoodShooterMotor
+                // .set(hoodWheelControllerLoop.calculate(hoodShooterMotorVelocity, setPointHoodShooterWheel));
+        // SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY", hoodShooterMotorVelocity);
+        // SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT", setPointHoodShooterWheel);
 
         // hood position
         if (setPointHood > hoodEncoder.getPosition() - 3 && setPointHood < hoodEncoder.getPosition() + 3) {
@@ -451,7 +492,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         boolean shooterReady = shooterControllerLoop.atSetpoint();
         boolean turretReady = true;
         boolean hoodReady = true;
-        boolean hoodShooterReady = hoodWheelControllerLoop.atSetpoint();
+        // boolean hoodShooterReady = hoodWheelControllerLoop.atSetpoint();
         if (turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5) {
             turretReady = true;
         }
@@ -462,9 +503,10 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         SmartDashboard.putBoolean("SHOOTER READY", shooterReady);
         SmartDashboard.putBoolean("TURRET READY", turretReady);
         SmartDashboard.putBoolean("HOOD READY", hoodReady);
-        SmartDashboard.putBoolean("HOOD SHOOTER READY", hoodShooterReady);
+        // SmartDashboard.putBoolean("HOOD SHOOTER READY", hoodShooterReady);
 
-        return turretReady && shooterReady && hoodReady && hoodShooterReady;
+        // return turretReady && shooterReady && hoodReady && hoodShooterReady;
+        return turretReady && shooterReady && hoodReady;
     }
 
     public int getBallsShooter() {
@@ -483,7 +525,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
     @Override
     public void resetSensors() {
-
+        this.hoodEncoder.setPosition(0);
     }
 
     @Override

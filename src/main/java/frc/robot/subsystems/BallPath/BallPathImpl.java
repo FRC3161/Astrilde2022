@@ -55,6 +55,8 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     public void task() {
 
         switch (action) {
+            case RESET:
+                this.shooter.setShotPosition(ShotPosition.RESET);
             case YES_SHOOT:
                 this.shooter.setShotPosition(ShotPosition.STARTAIM);
                 noShoot = false;

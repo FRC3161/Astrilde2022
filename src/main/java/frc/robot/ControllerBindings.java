@@ -23,6 +23,7 @@ public final class ControllerBindings {
     public static final XBoxOneButton SHOOT_LAUNCH_CLOSE = XBoxOneButton.RIGHT_BUMPER;
     public static final XBoxOneButton DEPLOY_CLIMBER = XBoxOneButton.B;
     public static final XBoxOneButton NOT_AIM = XBoxOneButton.Y;
+    public static final XBoxOneButton RESET_HOME = XBoxOneButton.SELECT;
 
     public static final XBoxOneButton DRIVE_REVERSE = XBoxOneButton.LEFT_BUMPER;
 
