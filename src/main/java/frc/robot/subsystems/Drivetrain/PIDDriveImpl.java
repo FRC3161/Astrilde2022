@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
-import frc.robot.Constans;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class PIDDriveImpl extends RepeatingPooledSubsystem implements Drive {
@@ -29,15 +29,15 @@ public class PIDDriveImpl extends RepeatingPooledSubsystem implements Drive {
 
   // PID controller values
 
-  private double kP = Constans.DriveTrain.kP;
-  private double kI = Constans.DriveTrain.kI;
-  private double kD = Constans.DriveTrain.kD;
-  private double kIz = Constans.DriveTrain.kIz;
-  private double kFF = Constans.DriveTrain.kFF;
-  private double kMaxOutput = Constans.DriveTrain.kMaxOutput;
-  private double kMinOutput = Constans.DriveTrain.kMinOutput;
-  private double maxRPM = Constans.DriveTrain.maxRPM;
-  private double setpointThreshold = Constans.DriveTrain.setpointThreshold;
+  private double kP = Constants.DriveTrain.kP;
+  private double kI = Constants.DriveTrain.kI;
+  private double kD = Constants.DriveTrain.kD;
+  private double kIz = Constants.DriveTrain.kIz;
+  private double kFF = Constants.DriveTrain.kFF;
+  private double kMaxOutput = Constants.DriveTrain.kMaxOutput;
+  private double kMinOutput = Constants.DriveTrain.kMinOutput;
+  private double maxRPM = Constants.DriveTrain.maxRPM;
+  private double setpointThreshold = Constants.DriveTrain.setpointThreshold;
 
   // PID controllers
 

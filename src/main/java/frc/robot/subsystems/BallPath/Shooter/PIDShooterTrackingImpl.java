@@ -15,7 +15,7 @@ import ca.team3161.lib.utils.Utils;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constans;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -138,10 +138,11 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
     boolean ramped = false;
 
     // ### FENDER values ###
-    // private double fenderHoodShooterMotorSpeed = Constans.Turret.Fender.hoodShooterMotorSpeed;
-    private int fenderSetPointHood = Constans.Turret.Fender.setPointHood;
-    private int fenderSetPointRotation = Constans.Turret.Fender.setPointRotation;
-    private int fenderSetPointShooterPID = Constans.Turret.Fender.setPointShooterPID;
+    // private double fenderHoodShooterMotorSpeed =
+    // Constants.Turret.Fender.hoodShooterMotorSpeed;
+    private int fenderSetPointHood = Constants.Turret.Fender.setPointHood;
+    private int fenderSetPointRotation = Constants.Turret.Fender.setPointRotation;
+    private int fenderSetPointShooterPID = Constants.Turret.Fender.setPointShooterPID;
 
     public PIDShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor) {
         super(10, TimeUnit.MILLISECONDS);
@@ -154,7 +155,8 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         // hoodShooterMotor_PIDController.setD(hoodShooterMotor_kD);
         // hoodShooterMotor_PIDController.setIZone(hoodShooterMotor_kIz);
         // hoodShooterMotor_PIDController.setFF(hoodShooterMotor_kFF);
-        // hoodShooterMotor_PIDController.setOutputRange(hoodShooterMotor_kMinOutput, hoodShooterMotor_kMaxOutput);
+        // hoodShooterMotor_PIDController.setOutputRange(hoodShooterMotor_kMinOutput,
+        // hoodShooterMotor_kMaxOutput);
 
         // Turret Rotation
         this.turretMotor = turretMotor;
@@ -185,7 +187,8 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         hood_PIDController.setOutputRange(hood_kMinOutput, hood_kMaxOutput);
 
         if (Robot.DEBUG) {
-            // SmartDashboard.putNumber("fenderHoodShooterMotorSpeed", this.fenderHoodShooterMotorSpeed);
+            // SmartDashboard.putNumber("fenderHoodShooterMotorSpeed",
+            // this.fenderHoodShooterMotorSpeed);
             SmartDashboard.putNumber("fenderSetPointHood", this.fenderSetPointHood);
             SmartDashboard.putNumber("fenderSetPointRotation", this.fenderSetPointRotation);
             SmartDashboard.putNumber("fenderSetPointShooterPID", this.fenderSetPointShooterPID);
@@ -308,8 +311,9 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         SmartDashboard.putNumber("Distance", totalDistance);
 
         if (Robot.DEBUG) {
-            // double fenderhoodshootermotorspeed = SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
-            //         this.fenderHoodShooterMotorSpeed);
+            // double fenderhoodshootermotorspeed =
+            // SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
+            // this.fenderHoodShooterMotorSpeed);
             int fendersetpointhood = (int) SmartDashboard.getNumber("fenderSetPointHood", this.fenderSetPointHood);
             int fendersetpointrotation = (int) SmartDashboard.getNumber("fenderSetPointRotation",
                     this.fenderSetPointRotation);
@@ -326,7 +330,7 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 this.fenderSetPointRotation = fendersetpointrotation;
             }
             // if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
-            //     this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
+            // this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
             // }
         }
 
@@ -369,15 +373,18 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
                 shoot = false;
                 setPointShooterPID = 0;
                 // hoodShooterMotorSpeed = 0;
-                aim = Constans.Turret.Default.aim;
+                aim = Constants.Turret.Default.aim;
                 setPointRotation = 0;
 
                 break;
         }
 
-        // this.hoodShooterMotor_PIDController.setReference(hoodShooterMotorSpeed, CANSparkMax.ControlType.kVelocity);
-        // SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY", hoodShooterMotorEncoder.getVelocity());
-        // SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT", hoodShooterMotorSpeed);
+        // this.hoodShooterMotor_PIDController.setReference(hoodShooterMotorSpeed,
+        // CANSparkMax.ControlType.kVelocity);
+        // SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY",
+        // hoodShooterMotorEncoder.getVelocity());
+        // SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT",
+        // hoodShooterMotorSpeed);
 
         // hood position
         if (setPointHood > hoodEncoder.getPosition() - 1.5 && setPointHood < hoodEncoder.getPosition() + 1.5) {
@@ -515,14 +522,15 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
             hoodReady = true;
         }
         // if (hoodShooterMotorEncoder.getVelocity() > hoodShooterMotorSpeed - 500
-        //         && hoodShooterMotorEncoder.getVelocity() < hoodShooterMotorSpeed + 500) {
-        //     hoodShooterReady = true;
+        // && hoodShooterMotorEncoder.getVelocity() < hoodShooterMotorSpeed + 500) {
+        // hoodShooterReady = true;
 
         // }
         // System.out.println(hoodShooterMotorEncoder.getVelocity());
         // System.out.println(hoodAngle);
         // System.out.println(setPointHood);
-        // System.out.println(turretReady + " " + shooterReady + " " + hoodReady + " " + hoodShooterReady);
+        // System.out.println(turretReady + " " + shooterReady + " " + hoodReady + " " +
+        // hoodShooterReady);
         System.out.println(turretReady + " " + shooterReady + " " + hoodReady);
         // if(shooterReady && !ramped && !flipped){
         // ramped = true;

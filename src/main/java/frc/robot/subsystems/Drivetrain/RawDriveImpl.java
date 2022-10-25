@@ -13,7 +13,7 @@ import ca.team3161.lib.robot.subsystem.RepeatingPooledSubsystem;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constans;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
@@ -46,8 +46,8 @@ public class RawDriveImpl extends RepeatingPooledSubsystem implements Drive {
   private final double arI = 0;
   private final double arD = 0.08;
 
-  private double leftMultiplication = Constans.DriveTrain.TeleOP.leftMultiplication;
-  private double rightMultiplication = Constans.DriveTrain.TeleOP.rightMultiplication;
+  private double leftMultiplication = Constants.DriveTrain.TeleOP.leftMultiplication;
+  private double rightMultiplication = Constants.DriveTrain.TeleOP.rightMultiplication;
 
   public RawDriveImpl(CANSparkMax leftSide, CANSparkMax rightSide) {
     super(20, TimeUnit.MILLISECONDS);

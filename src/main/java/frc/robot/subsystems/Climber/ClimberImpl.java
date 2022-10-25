@@ -8,7 +8,7 @@ import com.revrobotics.CANSparkMax;
 import ca.team3161.lib.robot.LifecycleEvent;
 import ca.team3161.lib.robot.subsystem.RepeatingPooledSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constans;
+import frc.robot.Constants;
 
 public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
@@ -115,20 +115,20 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         // double rightClimberMotorControllerPosition =
         // followerClimberMotorController.getSelectedSensorPosition();
 
-        if (positionNEO >= Constans.Climber.shoulderUnlatchSpot) {
-            this.shoulderMotorController.set(Constans.Climber.unlatchSpeedShoulder);
+        if (positionNEO >= Constants.Climber.shoulderUnlatchSpot) {
+            this.shoulderMotorController.set(Constants.Climber.unlatchSpeedShoulder);
         } else {
             this.shoulderMotorController.set(0);
         }
 
-        if (leftClimberMotorControllerPosition >= Constans.Climber.primaryUnlatchSpot) {
-            this.primaryClimberMotorController.set(Constans.Climber.unlatchSpeedPrimary);
+        if (leftClimberMotorControllerPosition >= Constants.Climber.primaryUnlatchSpot) {
+            this.primaryClimberMotorController.set(Constants.Climber.unlatchSpeedPrimary);
         } else {
             this.primaryClimberMotorController.set(0);
         }
 
-        if (positionNEO <= Constans.Climber.shoulderUnlatchSpot
-                && leftClimberMotorControllerPosition <= Constans.Climber.primaryUnlatchSpot) {
+        if (positionNEO <= Constants.Climber.shoulderUnlatchSpot
+                && leftClimberMotorControllerPosition <= Constants.Climber.primaryUnlatchSpot) {
             this.unLatched = true;
         }
 
