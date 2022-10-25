@@ -9,6 +9,7 @@ import ca.team3161.lib.robot.LifecycleEvent;
 import ca.team3161.lib.robot.subsystem.RepeatingPooledSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
@@ -20,12 +21,25 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     private boolean innerUp = false;
     private boolean unLatched = false;
 
+    // Configs for climber
+    private double shoulderUnlatchSpot = Constants.Climber.shoulderUnlatchSpot;
+    private double primaryUnlatchSpot = Constants.Climber.primaryUnlatchSpot;
+    private int unlatchSpeedPrimary = Constants.Climber.unlatchSpeedPrimary;
+    private double unlatchSpeedShoulder = Constants.Climber.unlatchSpeedShoulder;
+
     public ClimberImpl(WPI_TalonSRX primaryClimberMotorController, WPI_TalonSRX followerClimberMotorController,
             CANSparkMax shoulderMotorController) {
         super(20, TimeUnit.MILLISECONDS);
         this.primaryClimberMotorController = primaryClimberMotorController;
         this.followerClimberMotorController = followerClimberMotorController;
         this.shoulderMotorController = shoulderMotorController;
+
+        if (Robot.DEBUG) {
+            SmartDashboard.putNumber("shoulder unlatch spot", this.shoulderUnlatchSpot);
+            SmartDashboard.putNumber("primary unlatch spot", this.primaryUnlatchSpot);
+            SmartDashboard.putNumber("unlatch speed primary", this.unlatchSpeedPrimary);
+            SmartDashboard.putNumber("unlatch speed shoulder", this.unlatchSpeedShoulder);
+        }
     }
 
     @Override
@@ -110,25 +124,48 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         if (this.unLatched)
             return;
 
+        if (Robot.DEBUG) {
+            double shoulderunlatchspot = SmartDashboard.getNumber("shoulder unlatch spot",
+                    Constants.Climber.shoulderUnlatchSpot);
+            double primaryunlatchspot = SmartDashboard.getNumber("primary unlatch spot",
+                    Constants.Climber.primaryUnlatchSpot);
+            int unlatchspeedprimary = (int) SmartDashboard.getNumber("unlatch speed primary",
+                    Constants.Climber.unlatchSpeedPrimary);
+            double unlatchspeedshoulder = SmartDashboard.getNumber("unlatch speed shoulder",
+                    Constants.Climber.unlatchSpeedShoulder);
+            if (shoulderunlatchspot != this.shoulderUnlatchSpot) {
+                this.shoulderUnlatchSpot = shoulderunlatchspot;
+            }
+            if (primaryunlatchspot != this.primaryUnlatchSpot) {
+                this.primaryUnlatchSpot = primaryunlatchspot;
+            }
+            if (unlatchspeedprimary != this.unlatchSpeedPrimary) {
+                this.unlatchSpeedPrimary = unlatchspeedprimary;
+            }
+            if (unlatchspeedshoulder != this.unlatchSpeedShoulder) {
+                this.unlatchSpeedShoulder = unlatchspeedshoulder;
+            }
+        }
+
         double positionNEO = this.shoulderMotorController.getEncoder().getPosition();
         double leftClimberMotorControllerPosition = primaryClimberMotorController.getSelectedSensorPosition();
         // double rightClimberMotorControllerPosition =
         // followerClimberMotorController.getSelectedSensorPosition();
 
-        if (positionNEO >= Constants.Climber.shoulderUnlatchSpot) {
-            this.shoulderMotorController.set(Constants.Climber.unlatchSpeedShoulder);
+        if (positionNEO >= this.shoulderUnlatchSpot) {
+            this.shoulderMotorController.set(this.unlatchSpeedShoulder);
         } else {
             this.shoulderMotorController.set(0);
         }
 
-        if (leftClimberMotorControllerPosition >= Constants.Climber.primaryUnlatchSpot) {
-            this.primaryClimberMotorController.set(Constants.Climber.unlatchSpeedPrimary);
+        if (leftClimberMotorControllerPosition >= this.primaryUnlatchSpot) {
+            this.primaryClimberMotorController.set(this.unlatchSpeedPrimary);
         } else {
             this.primaryClimberMotorController.set(0);
         }
 
-        if (positionNEO <= Constants.Climber.shoulderUnlatchSpot
-                && leftClimberMotorControllerPosition <= Constants.Climber.primaryUnlatchSpot) {
+        if (positionNEO <= this.shoulderUnlatchSpot
+                && leftClimberMotorControllerPosition <= this.primaryUnlatchSpot) {
             this.unLatched = true;
         }
 
