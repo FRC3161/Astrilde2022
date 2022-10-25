@@ -32,8 +32,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     private final CANSparkMax hoodMotor;
     // private final CANSparkMax hoodShooterMotor;
 
-    private double leftLimit = -90.0;
-    private double rightLimit = 90.0;
+    private double leftLimit = Constants.Turret.leftLimit;
+    private double rightLimit = Constants.Turret.rightLimit;
 
     private volatile ShotPosition requestedPosition = ShotPosition.NONE;
     private double setPointHood;

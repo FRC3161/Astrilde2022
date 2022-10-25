@@ -21,6 +21,9 @@ public class Constants {
     }
 
     public static class Turret {
+        public static final double leftLimit = -45.0;
+        public static final double rightLimit = 45.0;
+
         public static class Shooter {
             public static final double[] distances = { 44.0, 113.4, 145.5, 170.8, 220.5 };;
             public static final int[] wheelValues = { 5_500, 7_500, 9_500, 10_000, 11_000 };
