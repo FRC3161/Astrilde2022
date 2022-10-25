@@ -395,14 +395,14 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         switch (this.requestedPosition) {
             case RESET:
-                if (Robot.DEBUG) {
-                    this.resetSensors();
-                    aim = false;
-                    setPointShooterFlywheel = 0;
-                    setPointHood = 0;
-                    setPointRotation = 0;
-                    shoot = false;
-                }
+                // if (Robot.DEBUG) {
+                // this.resetSensors();
+                // aim = false;
+                // setPointShooterFlywheel = 0;
+                // setPointHood = 0;
+                // setPointRotation = 0;
+                // shoot = false;
+                // }
                 break;
             case FENDER:
                 aim = false;
@@ -442,7 +442,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 // System.out.println("DEFAULT");
                 setPointHood = 0; // getSetpointHood(totalDistance);
                 shoot = false;
-                // setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
+                setPointShooterFlywheel = 1500; // 4000; // TODO change to optimal value
                 // setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
                 aim = Constants.Turret.Default.aim;
                 setPointRotation = 0;
