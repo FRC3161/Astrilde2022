@@ -3,6 +3,7 @@ package frc.robot.subsystems.BallPath.Shooter;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -19,7 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.BangBang2Controller;
 import frc.robot.BangBangController;
-import frc.robot.Constans;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.ScalarController;
 
@@ -116,9 +117,17 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     boolean flipped = false;
     boolean ramped = false;
 
-    private int fenderSetPointHood = Constans.Turret.Fender.setPointHood;
-    private int fenderSetPointRotation = Constans.Turret.Fender.setPointRotation;
-    private int fenderSetPointShooterPID = Constans.Turret.Fender.setPointShooterPID;
+    private int fenderSetPointHood = Constants.Turret.Fender.setPointHood;
+    private int fenderSetPointRotation = Constants.Turret.Fender.setPointRotation;
+    private int fenderSetPointShooterPID = Constants.Turret.Fender.setPointShooterPID;
+
+    // Hood Distances and Values
+    private double[] hoodDistances = Constants.Turret.HoodPoint.distances;
+    private int[] hoodValues = Constants.Turret.HoodPoint.hoodValues;
+
+    // Hood shooter distances and values
+    private double[] shooterDistances = Constants.Turret.Shooter.distances;
+    private int[] shooterValues = Constants.Turret.Shooter.wheelValues;
 
     public BangBangShooterTrackingImpl(CANSparkMax turretMotor, TalonFX shooterMotor, CANSparkMax hoodMotor) {
         super(10, TimeUnit.MILLISECONDS);
@@ -144,7 +153,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
         // Shooter Wheel
         this.shooterMotor = shooterMotor;
-        this.shooterControllerLoop = new BangBangController(Constans.Turret.HoodShooter.power, Constans.Turret.HoodShooter.tolerance);
+        this.shooterControllerLoop = new BangBangController(Constants.Turret.Shooter.power,
+                Constants.Turret.Shooter.tolerance);
         // this.shooterControllerLoop = new BangBang2Controller(1, 0.8, 200,
         // Duration.ofMillis(500), 0.75);
         SmartDashboard.putNumber("Shooter Set Speed", 0);
@@ -161,11 +171,51 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         hood_PIDController.setFF(hood_kFF);
         hood_PIDController.setOutputRange(hood_kMinOutput, hood_kMaxOutput);
         if (Robot.DEBUG) {
-            // SmartDashboard.putNumber("fenderHoodShooterMotorSpeed", this.fenderHoodShooterMotorSpeed);
+            // SmartDashboard.putNumber("fenderHoodShooterMotorSpeed",
+            // this.fenderHoodShooterMotorSpeed);
             SmartDashboard.putNumber("fenderSetPointHood", this.fenderSetPointHood);
             SmartDashboard.putNumber("fenderSetPointRotation", this.fenderSetPointRotation);
             SmartDashboard.putNumber("fenderSetPointShooterPID", this.fenderSetPointShooterPID);
+
+            SmartDashboard.putString("hood distances", this.arrayToString(this.hoodDistances));
+            SmartDashboard.putString("hood wheels", this.arrayToString(this.hoodValues));
+            SmartDashboard.putString("shooter distances", this.arrayToString(this.shooterDistances));
+            SmartDashboard.putString("shooter values", this.arrayToString(this.shooterValues));
         }
+    }
+
+    public int[] stringToIntArray(String rawData) {
+        String[] arrayRawData = rawData.split(",");
+        return Stream.of(arrayRawData).mapToInt(Integer::parseInt).toArray();
+    }
+
+    public double[] stringToDoubleArray(String rawData) {
+        String[] arrayRawData = rawData.split(",");
+        return Stream.of(arrayRawData).mapToDouble(Double::parseDouble).toArray();
+    }
+
+    public String arrayToString(double[] array) {
+        String output = "";
+        for (int i = 0; i < array.length; i++) {
+            if (i + 1 == array.length) {
+                output += array[i];
+                continue;
+            }
+            output += array[i] + ",";
+        }
+        return output;
+    }
+
+    public String arrayToString(int[] array) {
+        String output = "";
+        for (int i = 0; i < array.length; i++) {
+            if (i + 1 == array.length) {
+                output += array[i];
+                continue;
+            }
+            output += array[i] + ",";
+        }
+        return output;
     }
 
     @Override
@@ -185,8 +235,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
-        double[] distances = Constans.Turret.HoodPoint.distances;
-        int[] hoodValues = Constans.Turret.HoodPoint.hoodValues;
+        double[] distances = this.hoodDistances;
+        int[] hoodValues = this.hoodValues;
 
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -209,8 +259,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     public double getSetpointHoodShooter(Double distance) {
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = Constans.Turret.HoodShooter.distances;
-        double[] wheelValues = Constans.Turret.HoodShooter.wheelValues;
+        double[] distances = Constants.Turret.HoodShooter.distances;
+        int[] wheelValues = Constants.Turret.HoodShooter.wheelValues;
 
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -230,8 +280,8 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     public double getSetpointWheel(Double distance) {
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = { 44.0, 77, 90, 100, 113.4, 145.5, 170.8, 220.5 };
-        int[] wheelValues = { 5_500, 5_600, 5_750, 5_950, 6_175, 6_500, 7_800, 8_200 };
+        double[] distances = this.shooterDistances;
+        int[] wheelValues = this.shooterValues;
 
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
@@ -285,8 +335,9 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         SmartDashboard.putNumber("Distance", totalDistance);
 
         if (Robot.DEBUG) {
-            // double fenderhoodshootermotorspeed = SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
-            //         this.fenderHoodShooterMotorSpeed);
+            // double fenderhoodshootermotorspeed =
+            // SmartDashboard.getNumber("fenderHoodShooterMotorSpeed",
+            // this.fenderHoodShooterMotorSpeed);
             int fendersetpointhood = (int) SmartDashboard.getNumber("fenderSetPointHood", this.fenderSetPointHood);
             int fendersetpointrotation = (int) SmartDashboard.getNumber("fenderSetPointRotation",
                     this.fenderSetPointRotation);
@@ -303,18 +354,56 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 this.fenderSetPointRotation = fendersetpointrotation;
             }
             // if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
-            //     this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
+            // this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
             // }
+            SmartDashboard.putString("hood distances", this.arrayToString(this.hoodDistances));
+            SmartDashboard.putString("hood wheels", this.arrayToString(this.hoodValues));
+            SmartDashboard.putString("shooter distances", this.arrayToString(this.shooterDistances));
+            SmartDashboard.putString("shooter values", this.arrayToString(this.shooterValues));
+            double[] smartDashboardHoodDistance = this
+                    .stringToDoubleArray(SmartDashboard.getString("hood distances", ""));
+            int[] smartDashboardHoodValues = this.stringToIntArray(SmartDashboard.getString("hood wheels", ""));
+            double[] smartDashboardShooterDistances = this
+                    .stringToDoubleArray(SmartDashboard.getString("shooter distances", ""));
+            int[] smartDashboardShooterValues = this
+                    .stringToIntArray(SmartDashboard.getString("shooter values", ""));
+
+            for (int i = 0; i < this.hoodDistances.length; i++) {
+                if (this.hoodDistances[i] != smartDashboardHoodDistance[i]) {
+                    this.hoodDistances[i] = smartDashboardHoodDistance[i];
+                }
+            }
+
+            for (int i = 0; i < this.hoodValues.length; i++) {
+                if (this.hoodValues[i] != smartDashboardHoodValues[i]) {
+                    this.hoodValues[i] = smartDashboardHoodValues[i];
+                }
+            }
+
+            for (int i = 0; i < this.shooterDistances.length; i++) {
+                if (this.shooterDistances[i] != smartDashboardShooterDistances[i]) {
+                    this.shooterDistances[i] = smartDashboardShooterDistances[i];
+                }
+            }
+
+            for (int i = 0; i < this.shooterValues.length; i++) {
+                if (this.shooterValues[i] != smartDashboardShooterValues[i]) {
+                    this.shooterValues[i] = smartDashboardShooterValues[i];
+                }
+            }
         }
 
         switch (this.requestedPosition) {
             case RESET:
-                this.resetSensors();
-                aim = false;
-                setPointShooterFlywheel = 0;
-                setPointHood = 0;
-                setPointRotation = 0;
-                shoot = false;
+                if (Robot.DEBUG) {
+                    this.resetSensors();
+                    aim = false;
+                    setPointShooterFlywheel = 0;
+                    setPointHood = 0;
+                    setPointRotation = 0;
+                    shoot = false;
+                }
+                break;
             case FENDER:
                 aim = false;
                 setPointShooterFlywheel = this.fenderSetPointShooterPID; // 4700
@@ -353,19 +442,22 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                 // System.out.println("DEFAULT");
                 setPointHood = 0; // getSetpointHood(totalDistance);
                 shoot = false;
-                setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
+                // setPointShooterFlywheel = 4000; // 4000; // TODO change to optimal value
                 // setPointHoodShooterWheel = 0; // 3000; // TODO change to optimal value
-                aim = true;
+                aim = Constants.Turret.Default.aim;
+                setPointRotation = 0;
 
                 break;
         }
 
-
         // double hoodShooterMotorVelocity = hoodShooterMotorEncoder.getVelocity();
         // this.hoodShooterMotor
-                // .set(hoodWheelControllerLoop.calculate(hoodShooterMotorVelocity, setPointHoodShooterWheel));
-        // SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY", hoodShooterMotorVelocity);
-        // SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT", setPointHoodShooterWheel);
+        // .set(hoodWheelControllerLoop.calculate(hoodShooterMotorVelocity,
+        // setPointHoodShooterWheel));
+        // SmartDashboard.putNumber("Hood SHOOTER CURRENT VELOCITY",
+        // hoodShooterMotorVelocity);
+        // SmartDashboard.putNumber("Hood SHOOTER CURRRENT SETPOINT",
+        // setPointHoodShooterWheel);
 
         // hood position
         if (setPointHood > hoodEncoder.getPosition() - 3 && setPointHood < hoodEncoder.getPosition() + 3) {
