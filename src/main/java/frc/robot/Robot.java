@@ -74,7 +74,7 @@ public class Robot extends TitanBot {
   private Elevator elevator;
   private Shooter shooter;
   private Climber climberSubsystem;
-  public static final boolean DEBUG = Constans.debug;
+  public static final boolean DEBUG = Constants.debug;
   double turretEncoderReadingPosition;
   double turretEncoderReadingVelocity;
   private boolean set = false;
@@ -168,7 +168,8 @@ public class Robot extends TitanBot {
     BlinkinLEDController blinkenController = new BlinkinLEDController(8);
     blinkenController.setLEDPattern(Pattern.BREATH_BLUE);
 
-    // CANSparkMax hoodShooterMotor = new CANSparkMax(RobotMap.HOOD_SHOOTER_PORT, MotorType.kBrushless);
+    // CANSparkMax hoodShooterMotor = new CANSparkMax(RobotMap.HOOD_SHOOTER_PORT,
+    // MotorType.kBrushless);
     // hoodShooterMotor.restoreFactoryDefaults();
     // hoodShooterMotor.setSmartCurrentLimit(20);
     // hoodShooterMotor.setInverted(true);
@@ -176,7 +177,8 @@ public class Robot extends TitanBot {
 
     // this.shooter = new PIDShooterTrackingImpl(turretMotor, shooterMotor,
     // hoodMotor, hoodShooterMotor);
-    // this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor, hoodShooterMotor);
+    // this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor,
+    // hoodMotor, hoodShooterMotor);
     this.shooter = new BangBangShooterTrackingImpl(turretMotor, shooterMotor, hoodMotor);
 
     // ELEVATOR COMPONENTS
