@@ -492,9 +492,9 @@ public class Robot extends TitanBot {
     climber = this.operatorPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS);
     shoulderSpeed = this.operatorPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
 
-    if (Robot.DEBUG) {
-      System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
-    }
+    // if (Robot.DEBUG) {
+      // System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
+    // }
 
     this.climberSubsystem.extendElbow(climber);
     this.climberSubsystem.extendShoulder(shoulderSpeed);

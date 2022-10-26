@@ -47,9 +47,8 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         double lowerLimit = -10_000;
         double upperLimit = 110000;
         double position = primaryClimberMotorController.getSelectedSensorPosition();
-        if (speed < 0 && position < lowerLimit) {
-            speed = 0;
-        } else if (speed > 0 && position > upperLimit) {
+        // if (speed < 0 && position < lowerLimit) {
+        if (speed > 0 && position > upperLimit) {
             speed = 0;
         }
         // double lowerLimit = -10_000;
@@ -80,9 +79,9 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         double lowerLimit = -2;
         double upperLimit = 20.0;
         double position = this.shoulderMotorController.getEncoder().getPosition();
-        if (speed < 0 && position < lowerLimit) {
-            speed = 0;
-        } else if (speed > 0 && position > upperLimit) {
+        // if (speed < 0 && position < lowerLimit) {
+
+        if (speed > 0 && position > upperLimit) {
             speed = 0;
         }
 
@@ -149,12 +148,19 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
         double positionNEO = this.shoulderMotorController.getEncoder().getPosition();
         double leftClimberMotorControllerPosition = primaryClimberMotorController.getSelectedSensorPosition();
+
+        SmartDashboard.putNumber("Shoulder encoder value", positionNEO);
+        SmartDashboard.putNumber("Primary encode value", leftClimberMotorControllerPosition);
         // double rightClimberMotorControllerPosition =
         // followerClimberMotorController.getSelectedSensorPosition();
 
+        System.out.println("POSITION NEO: " + positionNEO);
+        System.out.println("Shoulder unlatch spot: " + this.shoulderUnlatchSpot);
+        System.out.println("Shoulder unlatch speed: " + this.unlatchSpeedShoulder);
         if (positionNEO >= this.shoulderUnlatchSpot) {
             this.shoulderMotorController.set(this.unlatchSpeedShoulder);
         } else {
+            System.out.println("STOPPING MOTOR");
             this.shoulderMotorController.set(0);
         }
 
@@ -164,10 +170,10 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
             this.primaryClimberMotorController.set(0);
         }
 
-        if (positionNEO <= this.shoulderUnlatchSpot
-                && leftClimberMotorControllerPosition <= this.primaryUnlatchSpot) {
-            this.unLatched = true;
-        }
+        // if (positionNEO <= this.shoulderUnlatchSpot
+        //         && leftClimberMotorControllerPosition <= this.primaryUnlatchSpot) {
+        //     this.unLatched = true;
+        // }
 
     }
 
@@ -210,6 +216,7 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
 
     @Override
     public void none() {
+        System.out.println("Calling none");
         this.shoulderMotorController.set(0);
 
     }

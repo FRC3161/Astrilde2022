@@ -122,7 +122,6 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     private int fenderSetPointShooterPID = Constants.Turret.Fender.setPointShooterPID;
 
     // Hood Distances and Values
-    private double[] hoodDistances = Constants.Turret.HoodPoint.distances;
     private int[] hoodValues = Constants.Turret.HoodPoint.hoodValues;
 
     // Hood shooter distances and values
@@ -177,7 +176,6 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             SmartDashboard.putNumber("fenderSetPointRotation", this.fenderSetPointRotation);
             SmartDashboard.putNumber("fenderSetPointShooterPID", this.fenderSetPointShooterPID);
 
-            SmartDashboard.putString("hood distances", this.arrayToString(this.hoodDistances));
             SmartDashboard.putString("hood wheels", this.arrayToString(this.hoodValues));
             SmartDashboard.putString("shooter distances", this.arrayToString(this.shooterDistances));
             SmartDashboard.putString("shooter values", this.arrayToString(this.shooterValues));
@@ -235,7 +233,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         // System.out.println("Distance" + distance);
         double returnAmount = 0;
-        double[] distances = this.hoodDistances;
+        double[] distances = this.shooterDistances;
         int[] hoodValues = this.hoodValues;
 
         for (int i = 1; i < distances.length; i++) {
@@ -356,33 +354,25 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             // if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
             // this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
             // }
-            double[] smartDashboardHoodDistance = this
-                    .stringToDoubleArray(SmartDashboard.getString("hood distances", ""));
             int[] smartDashboardHoodValues = this.stringToIntArray(SmartDashboard.getString("hood wheels", ""));
             double[] smartDashboardShooterDistances = this
                     .stringToDoubleArray(SmartDashboard.getString("shooter distances", ""));
             int[] smartDashboardShooterValues = this
                     .stringToIntArray(SmartDashboard.getString("shooter values", ""));
 
-            for (int i = 0; i < this.hoodDistances.length; i++) {
-                if (this.hoodDistances[i] != smartDashboardHoodDistance[i]) {
-                    this.hoodDistances[i] = smartDashboardHoodDistance[i];
-                }
-            }
-
-            for (int i = 0; i < this.hoodValues.length; i++) {
+            for (int i = 0; i < smartDashboardHoodValues.length; i++) {
                 if (this.hoodValues[i] != smartDashboardHoodValues[i]) {
                     this.hoodValues[i] = smartDashboardHoodValues[i];
                 }
             }
 
-            for (int i = 0; i < this.shooterDistances.length; i++) {
+            for (int i = 0; i < smartDashboardShooterDistances.length; i++) {
                 if (this.shooterDistances[i] != smartDashboardShooterDistances[i]) {
                     this.shooterDistances[i] = smartDashboardShooterDistances[i];
                 }
             }
 
-            for (int i = 0; i < this.shooterValues.length; i++) {
+            for (int i = 0; i < smartDashboardShooterValues.length; i++) {
                 if (this.shooterValues[i] != smartDashboardShooterValues[i]) {
                     this.shooterValues[i] = smartDashboardShooterValues[i];
                 }
