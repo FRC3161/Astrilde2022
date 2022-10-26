@@ -356,10 +356,6 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             // if (fenderhoodshootermotorspeed != this.fenderHoodShooterMotorSpeed) {
             // this.fenderHoodShooterMotorSpeed = fenderhoodshootermotorspeed;
             // }
-            SmartDashboard.putString("hood distances", this.arrayToString(this.hoodDistances));
-            SmartDashboard.putString("hood wheels", this.arrayToString(this.hoodValues));
-            SmartDashboard.putString("shooter distances", this.arrayToString(this.shooterDistances));
-            SmartDashboard.putString("shooter values", this.arrayToString(this.shooterValues));
             double[] smartDashboardHoodDistance = this
                     .stringToDoubleArray(SmartDashboard.getString("hood distances", ""));
             int[] smartDashboardHoodValues = this.stringToIntArray(SmartDashboard.getString("hood wheels", ""));
@@ -588,7 +584,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
         if (turretRotation > setPointRotation - 2.5 && turretRotation < setPointRotation + 2.5) {
             turretReady = true;
         }
-        if (hoodAngle > setPointHood - 3.5 && hoodAngle < setPointHood + 3.5) {
+        if (hoodAngle > setPointHood - 2 && hoodAngle < setPointHood + 2) {
             hoodReady = true;
         }
         SmartDashboard.putNumber("hood setpoint", setPointHood);

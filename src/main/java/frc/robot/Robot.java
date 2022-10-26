@@ -394,9 +394,9 @@ public class Robot extends TitanBot {
   public void teleopSetup() {
     System.out.println("telleop setup");
     JoystickMode deadbandMode = new DeadbandJoystickMode(0.05);
-    this.driverPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS,
+    this.driverPad.setMode(ControllerBindings.LEFT_STICK, ControllerBindings.Y_AXIS,
         deadbandMode.andThen(x -> x * 1).andThen(new SquaredJoystickMode()));
-    this.driverPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS,
+    this.driverPad.setMode(ControllerBindings.RIGHT_STICK, ControllerBindings.X_AXIS,
         new InvertedJoystickMode().andThen(deadbandMode));
 
     this.operatorPad.bind(ControllerBindings.OVERRIDE_ELEVATOR_GATE, this.elevator::setGateOverride);
@@ -454,7 +454,7 @@ public class Robot extends TitanBot {
   public void teleopRoutine() {
     // Drivetrain.
     double forward, turn;
-    forward = this.driverPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
+    forward = -this.driverPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
     turn = this.driverPad.getValue(ControllerBindings.LEFT_STICK, ControllerBindings.X_AXIS);
 
     this.drive.drive(forward, turn);
