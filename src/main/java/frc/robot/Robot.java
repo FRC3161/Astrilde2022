@@ -493,11 +493,9 @@ public class Robot extends TitanBot {
     shoulderSpeed = this.operatorPad.getValue(ControllerBindings.RIGHT_STICK, ControllerBindings.Y_AXIS);
 
     // if (Robot.DEBUG) {
-      // System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
+    // System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
     // }
-
-    this.climberSubsystem.extendElbow(climber);
-    this.climberSubsystem.extendShoulder(shoulderSpeed);
+    this.climberSubsystem.climb(climber, shoulderSpeed);
   }
 
   static DpadDirection angleToDpadDirection(int angle) {
