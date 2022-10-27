@@ -18,11 +18,6 @@ public interface Climber extends Subsystem, LifecycleListener {
 
     void none();
 
-    void DOengageUnlatch();
-
-    void unlatch();
-
-    void climb(double speed, double shoulderSpeed);
     // void retractInnerLifter(double speed);
     // void angleOuter(double angle);
 }

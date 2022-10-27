@@ -181,6 +181,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
             SmartDashboard.putString("shooter distances", this.arrayToString(this.shooterDistances));
             SmartDashboard.putString("shooter values", this.arrayToString(this.shooterValues));
         }
+        this.setLimelight(false);
     }
 
     public int[] stringToIntArray(String rawData) {

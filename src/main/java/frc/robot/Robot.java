@@ -427,8 +427,8 @@ public class Robot extends TitanBot {
     // this.operatorPad.bind(ControllerBindings.OUTAKE, PressType.RELEASE, () ->
     // this.ballSubsystem.setAction(BallAction.NONE));
 
-    this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.PRESS,
-        () -> this.climberSubsystem.DOengageUnlatch());
+    // this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.PRESS,
+    //     () -> this.climberSubsystem.DOengageUnlatch());
     this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.RELEASE, () -> this.climberSubsystem.none());
 
     this.ballSubsystem.setAction(BallPath.BallAction.MANUAL);
@@ -495,7 +495,8 @@ public class Robot extends TitanBot {
     // if (Robot.DEBUG) {
     // System.out.println("PLEASE SEE THIS: " + climber + " " + shoulderSpeed);
     // }
-    this.climberSubsystem.climb(climber, shoulderSpeed);
+    this.climberSubsystem.extendElbow(climber);
+    this.climberSubsystem.extendShoulder(shoulderSpeed);
   }
 
   static DpadDirection angleToDpadDirection(int angle) {

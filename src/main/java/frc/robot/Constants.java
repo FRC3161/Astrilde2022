@@ -56,9 +56,9 @@ public class Constants {
     }
 
     public static class Climber {
-        public static final double shoulderUnlatchSpot = -30.0;
-        public static final double primaryUnlatchSpot = -10_000.0;
-        public static final double unlatchSpeedPrimary = -0.5;
-        public static final double unlatchSpeedShoulder = -0.5;
+        public static final double shoulderUnlatchSpot = -4.5;
+        public static final double primaryUnlatchSpot = -1000.0;
+        public static final int unlatchSpeedPrimary = 0;
+        public static final double unlatchSpeedShoulder = -0.3;
     }
 }

@@ -20,12 +20,11 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     private boolean climberDeployed = false;
     private boolean innerUp = false;
     private boolean unLatched = false;
-    public boolean engageUnlatch = false;
 
     // Configs for climber
     private double shoulderUnlatchSpot = Constants.Climber.shoulderUnlatchSpot;
     private double primaryUnlatchSpot = Constants.Climber.primaryUnlatchSpot;
-    private double unlatchSpeedPrimary = Constants.Climber.unlatchSpeedPrimary;
+    private int unlatchSpeedPrimary = Constants.Climber.unlatchSpeedPrimary;
     private double unlatchSpeedShoulder = Constants.Climber.unlatchSpeedShoulder;
 
     public ClimberImpl(WPI_TalonSRX primaryClimberMotorController, WPI_TalonSRX followerClimberMotorController,
@@ -43,25 +42,14 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         }
     }
 
-    public void climb(double speed, double shoulderSpeed) {
-        if (this.engageUnlatch && !this.unLatched) {
-            this.unlatch();
-        } else {
-            this.extendElbow(speed);
-            this.extendShoulder(shoulderSpeed);
-        }
-    }
-
     @Override
     public void extendElbow(double speed) {
-        // double lowerLimit = -10_000;
+        double lowerLimit = -1000;
         double upperLimit = 110000;
         double position = primaryClimberMotorController.getSelectedSensorPosition();
-
-        if (speed < 0 && position < this.primaryUnlatchSpot) {
+        if (speed < 0 && position < lowerLimit) {
             speed = 0;
-        }
-        if (speed > 0 && position > upperLimit) {
+        } else if (speed > 0 && position > upperLimit) {
             speed = 0;
         }
         // double lowerLimit = -10_000;
@@ -89,13 +77,11 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         // if (speed > 0 && position > upperLimit) {
         // speed = 0;
         // }
-        // double lowerLimit = ;
+        double lowerLimit = -2;
         double upperLimit = 20.0;
         double position = this.shoulderMotorController.getEncoder().getPosition();
         // if (speed < 0 && position < lowerLimit) {
-        if (speed < 0 && position < this.shoulderUnlatchSpot) {
-            speed = 0;
-        }
+
         if (speed > 0 && position > upperLimit) {
             speed = 0;
         }
@@ -135,7 +121,7 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     }
 
     public void unlatch() {
-        if (this.unLatched || !this.engageUnlatch)
+        if (this.unLatched)
             return;
 
         if (Robot.DEBUG) {
@@ -169,6 +155,9 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
         // double rightClimberMotorControllerPosition =
         // followerClimberMotorController.getSelectedSensorPosition();
 
+        System.out.println("POSITION NEO: " + positionNEO);
+        System.out.println("Shoulder unlatch spot: " + this.shoulderUnlatchSpot);
+        System.out.println("Shoulder unlatch speed: " + this.unlatchSpeedShoulder);
         if (positionNEO >= this.shoulderUnlatchSpot) {
             this.shoulderMotorController.set(this.unlatchSpeedShoulder);
         } else {
@@ -182,17 +171,11 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
             this.primaryClimberMotorController.set(0);
         }
 
-        if (positionNEO <= this.shoulderUnlatchSpot
-                && leftClimberMotorControllerPosition <= this.primaryUnlatchSpot) {
-            this.unLatched = true;
-            this.engageUnlatch = false;
+        // if (positionNEO <= this.shoulderUnlatchSpot
+        //         && leftClimberMotorControllerPosition <= this.primaryUnlatchSpot) {
+        //     this.unLatched = true;
+        // }
 
-        }
-
-    }
-
-    public void DOengageUnlatch() {
-        this.engageUnlatch = !this.engageUnlatch;
     }
 
     @Override
