@@ -428,7 +428,7 @@ public class Robot extends TitanBot {
     // this.ballSubsystem.setAction(BallAction.NONE));
 
     this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.PRESS,
-        () -> this.climberSubsystem.primeClimber());
+        () -> this.climberSubsystem.DOengageUnlatch());
     this.operatorPad.bind(ControllerBindings.DEPLOY_CLIMBER, PressType.RELEASE, () -> this.climberSubsystem.none());
 
     this.ballSubsystem.setAction(BallPath.BallAction.MANUAL);
