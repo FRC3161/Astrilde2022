@@ -44,7 +44,7 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
     }
 
     @Override
-    public void defineResources(){
+    public void defineResources() {
         require(turretMotor);
         require(shooterMotor);
         require(hoodMotor);
@@ -55,8 +55,11 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
         this.requestedPosition = shotPosition;
     }
 
+    public void setLimelight(boolean state) {
+    }
+
     @Override
-    public void task(){
+    public void task() {
         shooterEncoderReadingPosition = shooterMotor.getSelectedSensorPosition();
         shooterEncoderReadingVelocity = shooterMotor.getSelectedSensorVelocity();
         turretHoodPosition = hoodMotor.getSelectedSensorPosition();
@@ -64,12 +67,18 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
         turretEncoderReadingPosition = this.turretMotor.getSelectedSensorPosition();
         turretEncoderReadingVelocity = this.turretMotor.getSelectedSensorVelocity();
 
-        // SmartDashboard.putNumber("Shooter Encoder reading position", shooterEncoderReadingPosition);
-        // SmartDashboard.putNumber("Shooter Encoder Reading Velocity", shooterEncoderReadingVelocity);
-        // SmartDashboard.putNumber("Turret Encoder Reading Position", turretEncoderReadingPosition);
-        // SmartDashboard.putNumber("Turret Encoder Reading Velocity", turretEncoderReadingVelocity);
-        // SmartDashboard.putNumber("Turret Hood Encoder reading Position", turretHoodPosition);
-        // SmartDashboard.putNumber("Turret Hood Encoder Reading Velocity", turretHoodVelocity);
+        // SmartDashboard.putNumber("Shooter Encoder reading position",
+        // shooterEncoderReadingPosition);
+        // SmartDashboard.putNumber("Shooter Encoder Reading Velocity",
+        // shooterEncoderReadingVelocity);
+        // SmartDashboard.putNumber("Turret Encoder Reading Position",
+        // turretEncoderReadingPosition);
+        // SmartDashboard.putNumber("Turret Encoder Reading Velocity",
+        // turretEncoderReadingVelocity);
+        // SmartDashboard.putNumber("Turret Hood Encoder reading Position",
+        // turretHoodPosition);
+        // SmartDashboard.putNumber("Turret Hood Encoder Reading Velocity",
+        // turretHoodVelocity);
 
         switch (this.requestedPosition) {
             case TARMAC:
@@ -117,13 +126,13 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
         if (setPointHood == Double.NEGATIVE_INFINITY) {
             hoodMotor.set(ControlMode.PercentOutput, 0);
             hoodReady = false;
-        } else if(turretHoodPosition >= setPointHood - hoodBuffer && turretHoodPosition <= setPointHood + hoodBuffer){
+        } else if (turretHoodPosition >= setPointHood - hoodBuffer && turretHoodPosition <= setPointHood + hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, 0);
             hoodReady = true;
-        }else if(turretHoodPosition <= setPointHood - hoodBuffer){
+        } else if (turretHoodPosition <= setPointHood - hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, hoodSpeed);
             hoodReady = false;
-        }else if (turretHoodPosition >= setPointHood + hoodBuffer){
+        } else if (turretHoodPosition >= setPointHood + hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, -hoodSpeed);
             hoodReady = false;
         }
@@ -131,13 +140,14 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
         if (setPointRotation == Double.NEGATIVE_INFINITY) {
             turretMotor.set(ControlMode.PercentOutput, 0);
             turretReady = false;
-        } else if(turretEncoderReadingPosition >= setPointRotation - turretBuffer && turretEncoderReadingPosition <= setPointRotation + turretBuffer){
+        } else if (turretEncoderReadingPosition >= setPointRotation - turretBuffer
+                && turretEncoderReadingPosition <= setPointRotation + turretBuffer) {
             turretMotor.set(ControlMode.PercentOutput, 0);
             turretReady = true;
-        }else if(turretEncoderReadingPosition <= setPointRotation - turretBuffer){
+        } else if (turretEncoderReadingPosition <= setPointRotation - turretBuffer) {
             turretMotor.set(ControlMode.PercentOutput, turretSpeed);
             turretReady = false;
-        }else if (turretEncoderReadingPosition >= setPointRotation + turretBuffer){
+        } else if (turretEncoderReadingPosition >= setPointRotation + turretBuffer) {
             turretMotor.set(ControlMode.PercentOutput, -turretSpeed);
             turretReady = false;
         }
@@ -146,32 +156,37 @@ public class RawShooterImpl extends RepeatingPooledSubsystem implements Shooter 
     }
 
     @Override
-    public void findAndCenterTarget() {}
+    public void findAndCenterTarget() {
+    }
 
     @Override
-    public void centerTarget(double tx){}
+    public void centerTarget(double tx) {
+    }
 
     @Override
-    public void getDistance(double ty, double angle1, double angle2){}
+    public void getDistance(double ty, double angle1, double angle2) {
+    }
 
     @Override
-    public boolean readyToShoot(){
+    public boolean readyToShoot() {
         boolean shooterReady = false;
-        if(Math.abs(shooterEncoderReadingVelocity) > setPointShooter - 300 && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 300){
+        if (Math.abs(shooterEncoderReadingVelocity) > setPointShooter - 300
+                && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 300) {
             shooterReady = true;
         }
         return turretReady && hoodReady && shooterReady;
     }
 
     @Override
-    public int checkBalls(){
+    public int checkBalls() {
         return 0;
     }
 
     @Override
-    public void stopMotors(){
+    public void stopMotors() {
         setShotPosition(ShotPosition.NONE);
     }
+
     @Override
     public void resetSensors() {
         this.hoodMotor.setSelectedSensorPosition(0);

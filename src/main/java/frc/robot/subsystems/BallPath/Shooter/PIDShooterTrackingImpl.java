@@ -203,6 +203,9 @@ public class PIDShooterTrackingImpl extends RepeatingIndependentSubsystem implem
         // require(hoodShooterMotor);
     }
 
+    public void setLimelight(boolean state) {
+    }
+
     @Override
     public void setShotPosition(ShotPosition shotPosition) {
         this.requestedPosition = shotPosition;

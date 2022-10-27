@@ -36,19 +36,25 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     }
 
     @Override
-    public void defineResources(){
+    public void defineResources() {
         require(intake);
         require(elevator);
         require(shooter);
     }
 
     @Override
-    public BallAction getAction(){
+    public BallAction getAction() {
         return this.action;
     }
+
     @Override
     public void setAction(BallAction inputAction) {
         this.action = inputAction;
+        if (inputAction == BallAction.SHOOTGENERAL) {
+            this.shooter.setLimelight(true);
+        } else {
+            this.shooter.setLimelight(false);
+        }
     }
 
     @Override
@@ -67,37 +73,37 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
                 break;
             case SHOOTGENERAL:
                 this.shooter.setShotPosition(ShotPosition.GENERAL);
-                if(shooter.readyToShoot()){
-                    if (elevator.ballPrimed()){
+                if (shooter.readyToShoot()) {
+                    if (elevator.ballPrimed()) {
                         elevator.setAction(ElevatorAction.RUN);
-                    }else{
+                    } else {
                         intake.setAction(IntakeAction.IN);
                     }
-                }else{
+                } else {
                     elevator.setAction(ElevatorAction.INDEX);
                 }
                 break;
             case SHOOTFENDER:
                 this.shooter.setShotPosition(ShotPosition.FENDER);
-                if(shooter.readyToShoot()){
-                    if (elevator.ballPrimed()){
+                if (shooter.readyToShoot()) {
+                    if (elevator.ballPrimed()) {
                         elevator.setAction(ElevatorAction.RUN);
-                    }else{
+                    } else {
                         intake.setAction(IntakeAction.IN);
                     }
-                }else{
+                } else {
                     elevator.setAction(ElevatorAction.INDEX);
                 }
-                
+
                 break;
             case INDEX:
-                if (this.elevator.ballPrimed()){
+                if (this.elevator.ballPrimed()) {
                     this.intake.setAction(IntakeAction.INDEX);
-                } else{
+                } else {
                     this.elevator.setAction(ElevatorAction.INDEX);
                     this.intake.setAction(IntakeAction.IN);
                 }
-                
+
                 checkBall = true;
                 break;
             case NONE:
@@ -114,7 +120,7 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
                 this.shooter.setShotPosition(ShotPosition.AUTO);
                 break;
             case SHOOT:
-                if(this.shooter.readyToShoot()){
+                if (this.shooter.readyToShoot()) {
                     this.elevator.setAction(ElevatorAction.RUN);
                 }
                 break;
@@ -123,7 +129,7 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
                 this.elevator.setAction(ElevatorAction.NONE);
             case MANUAL:
                 break;
-            
+
             default:
                 intake.setAction(IntakeAction.NONE);
                 elevator.setAction(ElevatorAction.NONE);
@@ -131,29 +137,29 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
                 break;
         }
 
-        if(noShoot){
+        if (noShoot) {
             blinkenController.setLEDPattern(Pattern.RAINBOW_GLITTER);
-        }else if(checkBall){
-            if(elevator.ballPrimed()){
+        } else if (checkBall) {
+            if (elevator.ballPrimed()) {
                 blinkenController.setLEDPattern(Pattern.SOLID_SKY_BLUE);
-            }else{
+            } else {
                 blinkenController.setLEDPattern(Pattern.SOLID_RED);
             }
-        }else{
+        } else {
             if (action.equals(BallAction.SHOOTFENDER) || action.equals(BallAction.SHOOTGENERAL)) {
-                if (shooter.readyToShoot()){
+                if (shooter.readyToShoot()) {
                     blinkenController.setLEDPattern(Pattern.STROBE_WHITE);
-                }  else{
+                } else {
                     blinkenController.setLEDPattern(Pattern.SOLID_AQUA);
                 }
             } else {
-                if(PIDShooterTrackingImpl.canSeeTarget() == 1.0){
-                    if (shooter.readyToShoot()){
+                if (PIDShooterTrackingImpl.canSeeTarget() == 1.0) {
+                    if (shooter.readyToShoot()) {
                         blinkenController.setLEDPattern(Pattern.STROBE_WHITE);
-                    }  else{
+                    } else {
                         blinkenController.setLEDPattern(Pattern.SOLID_GREEN);
                     }
-                }else{
+                } else {
                     blinkenController.setLEDPattern(Pattern.SOLID_RED);
                 }
             }
@@ -180,17 +186,17 @@ public class BallPathImpl extends RepeatingPooledSubsystem implements BallPath {
     }
 
     @Override
-    public Intake getIntake(){
+    public Intake getIntake() {
         return this.intake;
     }
 
     @Override
-    public Elevator getElevator(){
+    public Elevator getElevator() {
         return this.elevator;
     }
 
     @Override
-    public Shooter getShooter(){
+    public Shooter getShooter() {
         return this.shooter;
     }
 }

@@ -15,8 +15,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-
-
 public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Shooter {
 
     private final TalonSRX turretMotor;
@@ -77,12 +75,12 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         this.hoodMotor = hoodMotor;
         this.shooterPid = new PIDController(kp, ki, kd);
         this.shooterPid.setTolerance(50);
-        
+
         SmartDashboard.putNumber("Shooter Set Speed", 0);
     }
 
     @Override
-    public void defineResources(){
+    public void defineResources() {
         require(turretMotor);
         require(shooterMotor);
         require(hoodMotor);
@@ -93,38 +91,38 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         this.requestedPosition = shotPosition;
     }
 
-    public double getSetpointHood(double distance){
+    public double getSetpointHood(double distance) {
         double hoodDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = {55.0, 153.0, 202.95, 244.77, 305.66};
-        int[] hoodValues = {100_000, 230_000, 300_000, 330_000, 400_000};
+        double[] distances = { 55.0, 153.0, 202.95, 244.77, 305.66 };
+        int[] hoodValues = { 100_000, 230_000, 300_000, 330_000, 400_000 };
 
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
-            if(distance < key){
-                distDif = distances[i] - distances[i-1];
-                hoodDif = hoodValues[i] - hoodValues[i-1];
+            if (distance < key) {
+                distDif = distances[i] - distances[i - 1];
+                hoodDif = hoodValues[i] - hoodValues[i - 1];
                 difFromUpper = distances[i] - distance;
                 percentToAdd = difFromUpper / distDif;
                 amountToAdd = percentToAdd * hoodDif;
-                returnAmount = amountToAdd + hoodValues[i-1];
+                returnAmount = amountToAdd + hoodValues[i - 1];
                 break;
             }
         }
         return returnAmount;
     }
 
-    public double getSetpointWheel(Double distance){
+    public double getSetpointWheel(Double distance) {
         double wheelDif, distDif, difFromUpper, percentToAdd, amountToAdd;
         double returnAmount = 0;
-        double[] distances = {44.0, 113.4, 145.5, 170.8, 220.5};
-        int[] wheelValues = {5_500, 7_500, 9_500, 10_000, 11_000};
-    
+        double[] distances = { 44.0, 113.4, 145.5, 170.8, 220.5 };
+        int[] wheelValues = { 5_500, 7_500, 9_500, 10_000, 11_000 };
+
         for (int i = 1; i < distances.length; i++) {
             double key = distances[i];
-            if(distance < key){
-                distDif = distances[i] - distances[i-1];
-                wheelDif = wheelValues[i] - wheelValues[i-1];
+            if (distance < key) {
+                distDif = distances[i] - distances[i - 1];
+                wheelDif = wheelValues[i] - wheelValues[i - 1];
                 difFromUpper = distances[i] - distance;
                 percentToAdd = difFromUpper / distDif;
                 amountToAdd = percentToAdd * wheelDif;
@@ -135,9 +133,11 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         return returnAmount;
     }
 
+    public void setLimelight(boolean state) {
+    }
 
     @Override
-    public void task(){
+    public void task() {
         shooterEncoderReadingPosition = shooterMotor.getSelectedSensorPosition();
         shooterEncoderReadingVelocity = shooterMotor.getSelectedSensorVelocity();
         turretHoodPosition = hoodMotor.getSelectedSensorPosition();
@@ -155,7 +155,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         switch (this.requestedPosition) {
             case FENDER:
                 setPointHood = 100_000;
-                setPointShooterPID = 3000; 
+                setPointShooterPID = 3000;
                 setPointRotation = 0;
                 centerUsingLimelight = false;
                 break;
@@ -167,7 +167,7 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
                 x = tx.getDouble(0.0);
                 y = ty.getDouble(0.0);
                 a = ta.getDouble(0.0);
-                totalAngle = a1+y;
+                totalAngle = a1 + y;
                 totalAngleRadians = Math.toRadians(totalAngle);
                 rs = Math.tan(totalAngleRadians);
                 totalDistance = heightDif / rs;
@@ -206,7 +206,8 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
         }
 
         double hoodCurrent = hoodMotor.getStatorCurrent();
-        // System.out.println("hood setpoint: " + setPointHood + ", current: " + hoodCurrent);
+        // System.out.println("hood setpoint: " + setPointHood + ", current: " +
+        // hoodCurrent);
         if (setPointHood == Double.NEGATIVE_INFINITY) {
             hoodMotor.set(ControlMode.PercentOutput, 0);
             hoodReady = false;
@@ -223,87 +224,93 @@ public class PIDShooterImpl extends RepeatingIndependentSubsystem implements Sho
             } else {
                 hoodMotor.set(ControlMode.PercentOutput, -0.4);
             }
-        } else if(turretHoodPosition >= setPointHood - hoodBuffer && turretHoodPosition <= setPointHood + hoodBuffer){
+        } else if (turretHoodPosition >= setPointHood - hoodBuffer && turretHoodPosition <= setPointHood + hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, 0);
             hoodReady = true;
             stallCount = 0;
-        }else if(turretHoodPosition <= setPointHood - hoodBuffer){
+        } else if (turretHoodPosition <= setPointHood - hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, hoodSpeed);
             hoodReady = false;
             stallCount = 0;
-        }else if (turretHoodPosition >= setPointHood + hoodBuffer){
+        } else if (turretHoodPosition >= setPointHood + hoodBuffer) {
             hoodMotor.set(ControlMode.PercentOutput, -hoodSpeed);
             hoodReady = false;
             stallCount = 0;
         }
-        
 
-        if(!centerUsingLimelight){
+        if (!centerUsingLimelight) {
             if (setPointRotation == Double.NEGATIVE_INFINITY) {
                 turretMotor.set(ControlMode.PercentOutput, 0);
                 turretReady = false;
-            } else if(turretEncoderReadingPosition >= setPointRotation - turretBuffer && turretEncoderReadingPosition <= setPointRotation + turretBuffer){
+            } else if (turretEncoderReadingPosition >= setPointRotation - turretBuffer
+                    && turretEncoderReadingPosition <= setPointRotation + turretBuffer) {
                 turretMotor.set(ControlMode.PercentOutput, 0);
                 turretReady = true;
-            }else if(turretEncoderReadingPosition <= setPointRotation - turretBuffer){
+            } else if (turretEncoderReadingPosition <= setPointRotation - turretBuffer) {
                 turretMotor.set(ControlMode.PercentOutput, turretSpeed);
                 turretReady = false;
-            }else if (turretEncoderReadingPosition >= setPointRotation + turretBuffer){
+            } else if (turretEncoderReadingPosition >= setPointRotation + turretBuffer) {
                 turretMotor.set(ControlMode.PercentOutput, -turretSpeed);
                 turretReady = false;
             }
-        }else{
-            if(x < 1 && x > -1){
+        } else {
+            if (x < 1 && x > -1) {
                 turretMotor.set(ControlMode.PercentOutput, 0);
                 turretReady = true;
-            }else if(x > 1){
+            } else if (x > 1) {
                 turretMotor.set(ControlMode.PercentOutput, turretSpeed);
                 turretReady = false;
-            }else if(x<-1){
+            } else if (x < -1) {
                 turretMotor.set(ControlMode.PercentOutput, -turretSpeed);
                 turretReady = false;
             }
         }
 
-
-        if(setPointShooterPID != 0){
+        if (setPointShooterPID != 0) {
             currentOutput = shooterPid.calculate(shooterEncoderReadingVelocity, setPointShooterPID);
             currentOutput += 0.02; // hack "feed forward"
             currentOutput = Utils.normalizePwm(currentOutput);
-            // SmartDashboard.putNumber("Setpoint for the shooter is: ", setPointShooterPID);
-            // SmartDashboard.putNumber("Current Output is: ", shooterEncoderReadingVelocity);
+            // SmartDashboard.putNumber("Setpoint for the shooter is: ",
+            // setPointShooterPID);
+            // SmartDashboard.putNumber("Current Output is: ",
+            // shooterEncoderReadingVelocity);
         } else {
             currentOutput = 0;
         }
         this.shooterMotor.set(ControlMode.PercentOutput, currentOutput);
-        // System.out.println("Shooter setpoint " + setPointShooterPID + ", speed " + shooterEncoderReadingVelocity + ", power " + currentOutput);
+        // System.out.println("Shooter setpoint " + setPointShooterPID + ", speed " +
+        // shooterEncoderReadingVelocity + ", power " + currentOutput);
     }
 
     @Override
-    public void findAndCenterTarget() {}
+    public void findAndCenterTarget() {
+    }
 
     @Override
-    public void centerTarget(double tx){}
+    public void centerTarget(double tx) {
+    }
 
     @Override
-    public void getDistance(double ty, double angle1, double angle2){}
+    public void getDistance(double ty, double angle1, double angle2) {
+    }
 
     @Override
-    public boolean readyToShoot(){
+    public boolean readyToShoot() {
         boolean shooterReady = false;
-        if(Math.abs(shooterEncoderReadingVelocity) > setPointShooterPID - 500 && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 500){
+        if (Math.abs(shooterEncoderReadingVelocity) > setPointShooterPID - 500
+                && Math.abs(shooterEncoderReadingVelocity) < shooterEncoderReadingVelocity + 500) {
             shooterReady = true;
         }
         return turretReady && shooterReady;
     }
 
     @Override
-    public int checkBalls(){
+    public int checkBalls() {
         return 0;
     }
 
     @Override
-    public void stopMotors(){
+    public void stopMotors() {
         setShotPosition(ShotPosition.NONE);
     }
 

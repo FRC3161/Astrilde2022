@@ -88,6 +88,7 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
     public double hood_kMinOutput = -0.3;
 
     // LIMELIGHT STUFF
+    boolean limelightState = false; // Whether or not it's on or off
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
     NetworkTableEntry tx = table.getEntry("tx");
@@ -303,6 +304,14 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
 
     public CANSparkMax getHoodMotor() {
         return this.hoodMotor;
+    }
+
+    public void setLimelight(boolean state) {
+        if (this.limelightState == state)
+            return;
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode")
+                .setNumber(state ? 3 : 1);
+        this.limelightState = state;
     }
 
     @Override

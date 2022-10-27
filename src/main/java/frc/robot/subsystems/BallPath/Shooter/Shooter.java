@@ -5,13 +5,23 @@ import ca.team3161.lib.robot.subsystem.Subsystem;
 
 public interface Shooter extends Subsystem, LifecycleListener {
     void findAndCenterTarget();
+
     void centerTarget(double tx);
+
     void getDistance(double ty, double angle1, double angle2);
+
     boolean readyToShoot();
+
     int checkBalls();
+
     void stopMotors();
+
     void setShotPosition(ShotPosition shotPosition);
+
     void resetSensors();
+
+    void setLimelight(boolean state);
+
     int getBallsShooter();
     // CANSparkMax getHoodMotor();
 
@@ -23,11 +33,10 @@ public interface Shooter extends Subsystem, LifecycleListener {
         TARMAC,
         TEST,
         TEST2,
-        GENERAL, 
+        GENERAL,
         RESET,
         STARTAIM,
         STOPAIM,
-        AUTO
-        ;
+        AUTO;
     }
 }
