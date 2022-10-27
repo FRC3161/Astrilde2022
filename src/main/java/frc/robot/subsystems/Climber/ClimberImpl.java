@@ -25,7 +25,7 @@ public class ClimberImpl extends RepeatingPooledSubsystem implements Climber {
     // Configs for climber
     private double shoulderUnlatchSpot = Constants.Climber.shoulderUnlatchSpot;
     private double primaryUnlatchSpot = Constants.Climber.primaryUnlatchSpot;
-    private int unlatchSpeedPrimary = Constants.Climber.unlatchSpeedPrimary;
+    private double unlatchSpeedPrimary = Constants.Climber.unlatchSpeedPrimary;
     private double unlatchSpeedShoulder = Constants.Climber.unlatchSpeedShoulder;
 
     public ClimberImpl(WPI_TalonSRX primaryClimberMotorController, WPI_TalonSRX followerClimberMotorController,
