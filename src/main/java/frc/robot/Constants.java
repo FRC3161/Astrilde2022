@@ -21,20 +21,20 @@ public class Constants {
     }
 
     public static class Turret {
-        public static final double leftLimit = -190.0;
+        public static final double leftLimit = -90.0;
         public static final double rightLimit = 50.0;
 
         public static class Shooter {
-            public static final double[] distances = { 47.5,69.4, 77.0, 85.0, 97.0, 101.0, 12384, 12384, 12384, 12384 };
+            public static final double[] distances = { 47.5,69.4, 77.0, 85.0, 97.0, 101.0, 178.0, 195.9, 224.0, 250.0, 12384 };
             // public static final int[] wheelValues = { 5_500, 7_500, 9_500, 10_000, 11_000 };
-            public static final int[] wheelValues = { 6650,6800, 7000, 7200, 7300, 7650, 10000, 10000, 10000, 10000 };
+            public static final int[] wheelValues = { 6650,6800, 7000, 7200, 7300, 7650,8200, 9100, 9800, 10500, 10000 };
             public static final double power = 0.6; // step 1: 0.4
             public static final double tolerance = 100;
         }
 
         public static class HoodPoint {
             public static final double[] distances = Shooter.distances;
-            public static final int[] hoodValues = { 30,42 , 53, 55, 60, 62, 100, 100, 100, 100 };
+            public static final int[] hoodValues = { 30,42 , 53, 55, 60, 62, 90, 95, 110, 102, 100 };
         }
 
         public static class HoodShooter {
