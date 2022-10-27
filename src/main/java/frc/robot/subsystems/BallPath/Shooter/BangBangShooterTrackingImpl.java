@@ -361,20 +361,35 @@ public class BangBangShooterTrackingImpl extends RepeatingIndependentSubsystem i
                     .stringToIntArray(SmartDashboard.getString("shooter values", ""));
 
             for (int i = 0; i < smartDashboardHoodValues.length; i++) {
+                if (i > this.hoodValues.length - 1) {
+                    this.hoodValues = smartDashboardHoodValues;
+                    break;
+                }
                 if (this.hoodValues[i] != smartDashboardHoodValues[i]) {
-                    this.hoodValues[i] = smartDashboardHoodValues[i];
+                    this.hoodValues = smartDashboardHoodValues;
+                    break;
                 }
             }
 
             for (int i = 0; i < smartDashboardShooterDistances.length; i++) {
+                if (i > this.shooterDistances.length - 1) {
+                    this.shooterDistances = smartDashboardShooterDistances;
+                    break;
+                }
                 if (this.shooterDistances[i] != smartDashboardShooterDistances[i]) {
-                    this.shooterDistances[i] = smartDashboardShooterDistances[i];
+                    this.shooterDistances = smartDashboardShooterDistances;
+                    break;
                 }
             }
 
             for (int i = 0; i < smartDashboardShooterValues.length; i++) {
+                if (i > this.shooterValues.length - 1) {
+                    this.shooterValues = smartDashboardShooterValues;
+                    break;
+                }
                 if (this.shooterValues[i] != smartDashboardShooterValues[i]) {
-                    this.shooterValues[i] = smartDashboardShooterValues[i];
+                    this.shooterValues = smartDashboardShooterValues;
+                    break;
                 }
             }
         }
